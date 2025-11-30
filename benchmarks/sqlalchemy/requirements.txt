@@ -1,0 +1,7 @@
+GeoAlchemy2==0.18.1
+greenlet==3.2.4
+packaging==25.0
+psycopg==3.2.13
+python-dotenv==1.2.1
+SQLAlchemy==2.0.44
+typing_extensions==4.15.0
