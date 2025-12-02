@@ -2,7 +2,7 @@ from datetime import datetime, UTC
 from decimal import Decimal
 from pony.orm import db_session, commit
 from random import randint
-from pony_bench.models import Booking
+from models import Booking
 import os
 import time
 
