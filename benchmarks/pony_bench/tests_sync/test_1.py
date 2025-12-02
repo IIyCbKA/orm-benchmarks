@@ -4,13 +4,16 @@ from pony.orm import db_session, commit
 from random import randint
 from models import Booking
 import os
+import secrets
+import string
 import time
 
+ALPHANUM = string.digits + string.ascii_lowercase + string.ascii_uppercase
 COUNT = int(os.environ.get('ITERATIONS', '2500'))
 
 
-def generate_book_ref(i: int) -> str:
-  return f'{i:06d}'
+def generate_book_ref() -> str:
+  return ''.join(secrets.choice(ALPHANUM) for _ in range(6))
 
 
 def generate_amount() -> Decimal:
@@ -21,15 +24,18 @@ def generate_amount() -> Decimal:
 def main() -> None:
   start = time.time()
 
-  for i in range(COUNT):
+  for _ in range(COUNT):
     with db_session():
-      Booking(
-        book_ref=generate_book_ref(i),
-        book_date=datetime.now(UTC),
-        total_amount=generate_amount(),
-      )
+      try:
+        Booking(
+          book_ref=generate_book_ref(),
+          book_date=datetime.now(UTC),
+          total_amount=generate_amount(),
+        )
 
-      commit()
+        commit()
+      except Exception:
+        pass
 
   end = time.time()
   elapsed = end - start

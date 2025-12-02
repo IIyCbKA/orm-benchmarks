@@ -72,7 +72,9 @@ the solution name.
 ### Tests:
 
 1. Insert: Single (single entry at a time)
-
+2. Insert: Batch (many bathed in transaction)
+3. Insert: Bulk (bulk insert operation)
+4. Filter: Large (large result set)
 ---
 
 Stack: Python 3.12, PostgreSQL.\
