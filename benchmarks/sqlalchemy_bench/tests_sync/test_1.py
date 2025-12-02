@@ -1,6 +1,6 @@
 from datetime import datetime, UTC
 from decimal import Decimal
-from sync.db import SessionLocal
+from tests_sync.db import SessionLocal
 from random import randint
 from models import Booking
 import os
@@ -23,12 +23,12 @@ def main() -> None:
 
   for i in range(COUNT):
     with SessionLocal() as session:
-      Booking(
+      item = Booking(
         book_ref=generate_book_ref(i),
         book_date=datetime.now(UTC),
         total_amount=generate_amount(),
       )
-
+      session.add(item)
       session.commit()
 
   end = time.time()
