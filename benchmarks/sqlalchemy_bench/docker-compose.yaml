@@ -29,6 +29,7 @@ services:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_HOST: db
+      POSTGRES_PORT: ${POSTGRES_PORT}
     networks:
       - root
 
