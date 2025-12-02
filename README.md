@@ -18,7 +18,8 @@ https://hub.docker.com/repository/docker/iiycbka/sql-orm-benchmarks-db.
 
 ### Running
 
-**IMPORTANT NOTE:** On each fresh run of `docker-compose` you must clear all volumes and any references from previous runs.
+**IMPORTANT NOTE:** On each fresh run of `docker-compose` you must clear all 
+volumes and any references from previous runs.
 
 The easiest way to bring up a solution is (example):
 ```bash
@@ -28,6 +29,12 @@ The easiest way to bring up a solution is (example):
 # stop and remove containers, networks and declared volumes
 ./stop.sh <solution>
 ```
+
+**IMPORTANT NOTE:** In the Docker Compose setup we use a special healthcheck 
+for the database container. It is included in the same image as the database 
+dump and is designed to verify the existence of all tables defined in the 
+database schema shown above. In other words, the check will only pass once 
+every table in the schema has been created.
 
 ### Viewing benchmark results
 
@@ -54,6 +61,7 @@ docker-compose -f <path_to_compose>/docker-compose.yaml logs -f runner
 List of existing solutions available for start/stop/logs (use the solution 
 name from this list in `./start.sh`, `./stop.sh` and `./logs.sh`):
 - pony
+- sqlalchemy
 
 For convenience, ready-to-use start.sh, stop.sh and logs.sh scripts are 
 included in the repository root. Simply run them from the repo root and pass 
