@@ -29,6 +29,7 @@ by Docker and can be viewed via the runner container logs.
 Usage example:
 ```bash
 # from repo root
+# create and run containers
 ./start.sh <solution> <mode>
 
 # follow live runner logs
@@ -39,11 +40,11 @@ Usage example:
 ```
 
 List of existing solutions available for start/stop/logs (use the solution 
-name from this list in `./start.sh`, `./stop.sh` and `./logs.sh`):
+name from this list for `./start.sh`):
 - pony
 - sqlalchemy
 
-List of modes for solutions (use the mode name from this list in `./start.sh`, 
+List of modes for solutions (use the mode name from this list for `./start.sh`, 
 default is sync):
 - sync
 - async
