@@ -1,6 +1,6 @@
 services:
   db:
-    image: iiycbka/sql-orm-benchmarks-db:latest
+    image: postgres:17-alpine
     restart: unless-stopped
     environment:
       POSTGRES_DB: ${POSTGRES_DB}
@@ -12,10 +12,10 @@ services:
     networks:
       - root
     healthcheck:
-      test: ["CMD", "/usr/local/bin/check_db.sh"]
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
       interval: 10s
       timeout: 5s
-      retries: 60
+      retries: 5
 
   runner:
     build:
@@ -36,6 +36,10 @@ services:
 
 volumes:
   postgres_data:
+    name: ${POSTGRES_RUN_VOLUME}
+  postgres_golden:
+    name: ${POSTGRES_GOLDEN_VOLUME}
+    external: true
 
 networks:
   root:

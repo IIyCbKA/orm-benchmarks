@@ -35,7 +35,7 @@ Usage example:
 # follow live runner logs
 ./logs.sh
 
-# stop and remove containers, networks and declared volumes
+# stop and remove containers, networks and runtime volumes
 ./stop.sh
 ```
 
@@ -50,13 +50,17 @@ default is sync):
 - async
 
 **IMPORTANT NOTE:** On each fresh run of `docker-compose` (this is done 
-in `stop.sh`) you must clear all volumes and any references from previous runs.
+in `stop.sh`) you must clear all runtime volumes from previous runs.
 
-**IMPORTANT NOTE:** In the Docker Compose setup we use a special healthcheck 
-for the database container. It is included in the same image as the database 
-dump and is designed to verify the existence of all tables defined in the 
-database schema shown above. In other words, the check will only pass once 
-every table in the schema has been created.
+**IMPORTANT NOTE:** For the correct functioning of the `start.sh` script, you 
+need to have a ready-to-use `.env` in the project root with correct values.
+
+**IMPORTANT NOTE:** The `start.sh` script contains some complex logic: it checks 
+that a volume with the original database (golden) exists, and if necessary 
+deploys the dump into it. Then it cleans up the runtime volume from previous 
+runs if needed and creates a new runtime copy of the original database for the 
+current run. It also passes a subset of necessary arguments to docker-compose. 
+Therefore, it is recommended to run *exclusively* the ready `start.sh`.
 
 ---
 

@@ -17,6 +17,9 @@ else
   exit 2
 fi
 
+export POSTGRES_GOLDEN_VOLUME="${POSTGRES_GOLDEN_VOLUME:-golden-volume}"
+export POSTGRES_RUN_VOLUME="${POSTGRES_RUN_VOLUME:-run-volume}"
+
 echo ">>> Stopping and removing"
 echo ">>> Command: ${DC[*]} -f $COMPOSE_FILE down -v --remove-orphans"
 
