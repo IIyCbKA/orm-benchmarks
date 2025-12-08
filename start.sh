@@ -30,6 +30,7 @@ fi
 declare -A MAP=(
   ["pony"]="./benchmarks/pony_bench"
   ["sqlalchemy"]="./benchmarks/sqlalchemy_bench"
+  ["sql"]="./benchmarks/sql_bench"
 )
 
 NAME="${1:-}"
