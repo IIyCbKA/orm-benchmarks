@@ -29,9 +29,6 @@ class Ticket(db.Entity):
 
   composite_key(book_ref, passenger_id, outbound)
 
-  segments = Set('Segment', reverse='ticket_no')
-  boarding_passes = Set('BoardingPass', reverse='ticket_no')
-
 
 db.bind(
   provider='postgres',
