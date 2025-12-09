@@ -20,28 +20,31 @@ def generate_amount(i: int) -> Decimal:
 async def main() -> None:
     start = time.time()
 
-    for i in range(COUNT):
+    try:
+        conn = await get_connection()
         try:
-            conn = await get_connection()
-
-            await conn.execute(
-                """
-                INSERT INTO bookings.bookings (book_ref, book_date, total_amount)
-                VALUES ($1, $2, $3)
-                """,
-                generate_book_ref(i),
-                datetime.now(UTC),
-                generate_amount(i),
-            )
-
+            for i in range(COUNT):
+                try:
+                    await conn.execute(
+                        """
+                        INSERT INTO bookings.bookings (book_ref, book_date, total_amount)
+                        VALUES ($1, $2, $3)
+                        """,
+                        generate_book_ref(i),
+                        datetime.now(UTC),
+                        generate_amount(i),
+                    )
+                except Exception:
+                    pass
+        finally:
             await conn.close()
-        except Exception:
-            pass
+    except Exception:
+        pass
 
     elapsed = time.time() - start
 
     print(
-        f'Pure async SQL (asyncpg). Test 1. Insert\n'
+        f'Pure async SQL (asyncpg). Test 1. Single create. {COUNT} entities\n'
         f'elapsed_sec={elapsed:.4f};'
     )
 

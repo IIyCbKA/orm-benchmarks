@@ -19,22 +19,21 @@ def generate_amount(i: int) -> Decimal:
 def main() -> None:
     start = time.time()
 
+    rows = []
+    curr_date = datetime.now(UTC)
+    for i in range(COUNT):
+        rows.append((generate_book_ref(i), curr_date, generate_amount(i)))
 
     try:
         with get_connection() as conn:
             with conn.cursor() as cur:
-                for i in range(COUNT):
-                    cur.execute(
-                        """
-                        INSERT INTO bookings.bookings (book_ref, book_date, total_amount)
-                        VALUES (%s, %s, %s)
-                        """,
-                        (
-                            generate_book_ref(i),
-                            datetime.now(UTC),
-                            generate_amount(i),
-                        ),
-                    )
+                cur.executemany(
+                    """
+                    INSERT INTO bookings.bookings (book_ref, book_date, total_amount)
+                    VALUES (%s, %s, %s)
+                    """,
+                    rows,
+                )
             conn.commit()
     except Exception:
         pass
@@ -42,7 +41,7 @@ def main() -> None:
     elapsed = time.time() - start
 
     print(
-        f'Pure SQL (psycopg3). Test 2. Transaction insert\n'
+        f'Pure SQL (psycopg3). Test 2. Batch create. {COUNT} entities\n'
         f'elapsed_sec={elapsed:.4f};'
     )
 

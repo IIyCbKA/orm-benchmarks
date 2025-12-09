@@ -14,39 +14,37 @@ def generate_book_ref(i: int) -> str:
 
 
 def generate_amount(i: int) -> Decimal:
-    return Decimal(i + 500) / Decimal('10.00')
+    return Decimal(i + 500) / Decimal("10.00")
 
 
 async def main() -> None:
     start = time.time()
 
-    rows = [
-        (generate_book_ref(i), datetime.now(UTC), generate_amount(i))
-        for i in range(COUNT)
-    ]
+    curr_date = datetime.now(UTC)
+    rows = [(generate_book_ref(i), curr_date, generate_amount(i)) for i in range(COUNT)]
 
     try:
         conn = await get_connection()
-        async with conn.transaction():
+        try:
             await conn.executemany(
                 """
                 INSERT INTO bookings.bookings (book_ref, book_date, total_amount)
                 VALUES ($1, $2, $3)
                 """,
-                rows,
+                rows
             )
-
-        await conn.close()
+        finally:
+            await conn.close()
     except Exception:
         pass
 
     elapsed = time.time() - start
 
     print(
-        f'Pure async SQL (asyncpg). Test 3. Bulk insert\n'
+        f'Pure async SQL (asyncpg). Test 3. Bulk create. {COUNT} entities\n'
         f'elapsed_sec={elapsed:.4f};'
     )
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     asyncio.run(main())

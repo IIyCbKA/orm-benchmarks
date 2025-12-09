@@ -4,7 +4,6 @@ import time
 from datetime import datetime, UTC
 from decimal import Decimal
 
-import asyncpg
 from tests_async.db import get_connection
 
 COUNT = int(os.environ.get('ITERATIONS', '2500'))
@@ -21,29 +20,28 @@ def generate_amount(i: int) -> Decimal:
 async def main() -> None:
     start = time.time()
 
+    curr_date = datetime.now(UTC)
+    rows = [(generate_book_ref(i), curr_date, generate_amount(i)) for i in range(COUNT)]
+
     try:
         conn = await get_connection()
-
-        async with conn.transaction():
-            for i in range(COUNT):
-                await conn.execute(
-                    """
-                    INSERT INTO bookings.bookings (book_ref, book_date, total_amount)
-                    VALUES ($1, $2, $3)
-                    """,
-                    generate_book_ref(i),
-                    datetime.now(UTC),
-                    generate_amount(i),
-                )
-
-        await conn.close()
+        try:
+            await conn.executemany(
+                """
+                INSERT INTO bookings.bookings (book_ref, book_date, total_amount)
+                VALUES ($1, $2, $3)
+                """,
+                rows
+            )
+        finally:
+            await conn.close()
     except Exception:
         pass
 
     elapsed = time.time() - start
 
     print(
-        f'Pure async SQL (asyncpg). Test 2. Transaction insert\n'
+        f'Pure async SQL (asyncpg). Test 2. Batch create. {COUNT} entities\n'
         f'elapsed_sec={elapsed:.4f};'
     )
 

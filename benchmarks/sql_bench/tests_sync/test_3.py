@@ -7,26 +7,24 @@ from tests_sync.db import get_connection
 
 COUNT = int(os.environ.get('ITERATIONS', '2500'))
 
+
 def generate_book_ref(i: int) -> str:
     return f'c{i:05d}'
 
 
 def generate_amount(i: int) -> Decimal:
-    return Decimal(i + 500) / Decimal('10.00')
+    return Decimal(i + 500) / Decimal("10.00")
 
 
 def main() -> None:
     start = time.time()
 
-    rows = []
-    for i in range(COUNT):
-        rows.append(
-            (
-                generate_book_ref(i),
-                datetime.now(UTC),
-                generate_amount(i),
-            )
-        )
+    curr_date = datetime.now(UTC)
+
+    rows = [
+        (generate_book_ref(i), curr_date, generate_amount(i))
+        for i in range(COUNT)
+    ]
 
     try:
         with get_connection() as conn:
@@ -45,10 +43,10 @@ def main() -> None:
     elapsed = time.time() - start
 
     print(
-        f'Pure SQL (psycopg3). Test 3. Bulk insert\n'
+        f'Pure SQL (psycopg3). Test 3. Bulk create. {COUNT} entities\n'
         f'elapsed_sec={elapsed:.4f};'
     )
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
