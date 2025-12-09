@@ -1,5 +1,6 @@
 from datetime import datetime, UTC
 from decimal import Decimal
+from functools import lru_cache
 from pony.orm import db_session, commit
 from core.models import Booking
 import os
@@ -17,6 +18,11 @@ def generate_amount(i: int) -> Decimal:
   return Decimal(value) / Decimal('10.00')
 
 
+@lru_cache(1)
+def get_curr_date():
+  return datetime.now(UTC)
+
+
 def main() -> None:
   start = time.time()
 
@@ -25,7 +31,7 @@ def main() -> None:
       try:
         Booking(
           book_ref=generate_book_ref(i),
-          book_date=datetime.now(UTC),
+          book_date=get_curr_date(),
           total_amount=generate_amount(i),
         )
 
@@ -37,7 +43,7 @@ def main() -> None:
   elapsed = end - start
 
   print(
-    f'PonyORM. Test 1. Insert\n'
+    f'PonyORM. Test 1. Single create. {COUNT} entities\n'
     f'elapsed_sec={elapsed:.4f};'
   )
 

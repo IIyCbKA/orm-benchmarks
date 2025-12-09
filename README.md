@@ -66,10 +66,21 @@ Therefore, it is recommended to run *exclusively* the ready `start.sh`.
 
 ### Tests:
 
-1. Insert: Single (single entry at a time)
-2. Insert: Batch (many bathed in transaction)
-3. Insert: Bulk (bulk insert operation)
-4. Filter: Large (large result set)
+1. Single create
+2. Batch create
+3. Bulk create
+4. Nested create
+5. Find all
+6. Find first
+7. Nested find first
+8. Find unique
+9. Nested find unique
+10. Filter, paginate & sort
+11. Update batch
+12. Update single
+13. Nested batch update
+14. Batch delete
+
 ---
 
 - Stack: Python 3.12, PostgreSQL.

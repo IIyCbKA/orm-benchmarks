@@ -10,11 +10,11 @@ COUNT = int(os.environ.get('ITERATIONS', '2500'))
 
 
 def generate_book_ref(i: int) -> str:
-  return f'b{i:05d}'
+  return f'a{i:05d}'
 
 
-def generate_amount(i: int) -> Decimal:
-  value = i + 500
+def get_new_amount(i: int) -> Decimal:
+  value = i + 100
   return Decimal(value) / Decimal('10.00')
 
 
@@ -26,24 +26,22 @@ def get_curr_date():
 def main() -> None:
   start = time.time()
 
-  with db_session():
-    try:
-      for i in range(COUNT):
-        Booking(
-          book_ref=generate_book_ref(i),
-          book_date=get_curr_date(),
-          total_amount=generate_amount(i),
-        )
-
-      commit()
-    except Exception:
-      pass
+  for i in range(COUNT):
+    with db_session():
+      try:
+        booking = Booking.get(book_ref=generate_book_ref(i))
+        if booking:
+          booking.total_amount = get_new_amount(i)
+          booking.book_date = get_curr_date()
+        commit()
+      except Exception:
+        pass
 
   end = time.time()
   elapsed = end - start
 
   print(
-    f'PonyORM. Test 2. Batch create. {COUNT} entities\n'
+    f'PonyORM. Test 12. Single update. {COUNT} entries\n'
     f'elapsed_sec={elapsed:.4f};'
   )
 
