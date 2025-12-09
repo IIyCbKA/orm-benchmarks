@@ -31,7 +31,7 @@ class Booking(db.Entity):
 class Ticket(db.Entity):
   _table_ = 'tickets'
 
-  ticket_no = PrimaryKey(str, sql_type='text')
+  ticket_no = PrimaryKey(str, max_len=13, sql_type='text')
   book_ref = Required(Booking)
   passenger_id = Required(str, sql_type='text')
   passenger_name = Required(str, sql_type='text')
