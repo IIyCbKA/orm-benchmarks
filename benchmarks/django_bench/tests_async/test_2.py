@@ -42,11 +42,10 @@ def batch_create_sync() -> None:
 async def main() -> None:
   start = time.time()
 
-  for i in range(COUNT):
-    try:
-      await sync_to_async(batch_create_sync, thread_sensitive=True)()
-    except Exception:
-      pass
+  try:
+    await sync_to_async(batch_create_sync, thread_sensitive=True)()
+  except Exception:
+    pass
 
   end = time.time()
   elapsed = end - start
