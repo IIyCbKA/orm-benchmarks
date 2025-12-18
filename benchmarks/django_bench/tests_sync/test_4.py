@@ -60,7 +60,7 @@ def main() -> None:
 
   print(
     f'Django ORM (sync). Test 4. Nested create. {COUNT} entities\n'
-    f'elapsed_sec={elapsed:.4f};'
+    f'elapsed_ns={elapsed:.0f};'
   )
 
 

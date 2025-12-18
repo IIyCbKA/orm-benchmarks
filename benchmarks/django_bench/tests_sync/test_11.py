@@ -46,7 +46,7 @@ def main() -> None:
 
   print(
     f'Django ORM (sync). Test 11. Batch update. {COUNT} entries\n'
-    f'elapsed_sec={elapsed:.4f};'
+    f'elapsed_ns={elapsed:.0f};'
   )
 
 

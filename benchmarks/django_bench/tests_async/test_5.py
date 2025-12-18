@@ -19,7 +19,7 @@ async def main() -> None:
 
   print(
     f'Django ORM (async). Test 5. Find all\n'
-    f'elapsed_sec={elapsed:.4f};'
+    f'elapsed_ns={elapsed:.0f};'
   )
 
 

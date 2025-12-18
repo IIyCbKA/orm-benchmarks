@@ -23,7 +23,7 @@ async def main() -> None:
 
   print(
     f'Django ORM (async). Test 8. Find unique\n'
-    f'elapsed_sec={elapsed:.4f};'
+    f'elapsed_ns={elapsed:.0f};'
   )
 
 

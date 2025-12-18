@@ -45,7 +45,7 @@ async def main() -> None:
 
   print(
     f'Django ORM (async). Test 1. Single create. {COUNT} entities\n'
-    f'elapsed_sec={elapsed:.4f};'
+    f'elapsed_ns={elapsed:.0f};'
   )
 
 
