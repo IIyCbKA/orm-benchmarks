@@ -77,10 +77,11 @@ Therefore, it is recommended to run *exclusively* the ready `start.sh`.
 8. Find unique
 9. Nested find unique
 10. Filter, paginate & sort
-11. Update batch
-12. Update single
+11. Batch update
+12. Single update
 13. Nested batch update
 14. Batch delete
+15. Single delete 
 
 ---
 

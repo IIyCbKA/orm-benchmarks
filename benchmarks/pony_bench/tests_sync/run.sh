@@ -46,3 +46,6 @@ python -m test_13
 
 # Test 14 -> Batch delete
 python -m test_14
+
+# Test 15 -> Single delete
+python -m test_15

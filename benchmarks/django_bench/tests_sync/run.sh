@@ -36,3 +36,18 @@ python -m test_9
 
 # Test 10 -> Filter, paginate & sort
 python -m test_10
+
+# Test 11 -> Batch update
+python -m test_11
+
+# Test 12 -> Single update
+python -m test_12
+
+# Test 13 -> Nested batch update
+python -m test_13
+
+# Test 14 -> Batch delete
+python -m test_14
+
+# Test 15 -> Single delete
+python -m test_15

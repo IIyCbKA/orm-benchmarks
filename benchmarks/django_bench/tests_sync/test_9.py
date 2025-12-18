@@ -13,7 +13,7 @@ def main() -> None:
   start = time.time()
 
   try:
-    book = Booking.objects.get(book_ref=generate_book_ref(1))
+    book = Booking.objects.filter(book_ref=generate_book_ref(1)).first()
     if book:
       _ = list(book.tickets.all())
   except Exception:

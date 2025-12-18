@@ -14,7 +14,7 @@ async def main() -> None:
   start = time.time()
 
   try:
-    _ = await Booking.objects.aget(book_ref=generate_book_ref(1))
+    _ = await Booking.objects.filter(book_ref=generate_book_ref(1)).afirst()
   except Exception:
     pass
 

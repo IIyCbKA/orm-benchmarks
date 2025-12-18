@@ -14,7 +14,7 @@ async def main() -> None:
   start = time.time()
 
   try:
-    book = await Booking.objects.aget(book_ref=generate_book_ref(1))
+    book = await Booking.objects.filter(book_ref=generate_book_ref(1)).afirst()
     if book:
       _ = [t async for t in book.tickets.all()]
   except Exception:
