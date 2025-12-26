@@ -1,5 +1,5 @@
 from decimal import Decimal
-from pony.orm import db_session, commit
+from pony.orm import db_session, commit, select, flush
 from core.models import Booking
 import os
 import time
@@ -14,17 +14,21 @@ def generate_book_ref(i: int) -> str:
 def main() -> None:
   start = time.perf_counter_ns()
 
-  with db_session():
-    try:
-      for i in range(COUNT):
-        booking = Booking.get(book_ref=generate_book_ref(i))
-        if booking:
-          booking.total_amount += Decimal('10.00')
-          for ticket in booking.tickets:
-            ticket.passenger_name = 'Nested update'
-      commit()
-    except Exception:
-      pass
+  try:
+    refs = [generate_book_ref(i) for i in range(COUNT)]
+
+    with db_session():
+      bookings = list(select(
+        b for b in Booking if b.book_ref in refs).prefetch(Booking.tickets))
+
+      for booking in bookings:
+        booking.total_amount += Decimal('10.00')
+        flush()
+        for ticket in booking.tickets:
+          ticket.passenger_name = 'Nested update'
+          flush()
+  except Exception:
+    pass
 
   end = time.perf_counter_ns()
   elapsed = end - start

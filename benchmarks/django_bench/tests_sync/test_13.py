@@ -19,15 +19,17 @@ def main() -> None:
   start = time.perf_counter_ns()
 
   try:
+    refs = [generate_book_ref(i) for i in range(COUNT)]
+    bookings = list(Booking.objects.filter(
+      book_ref__in=refs).prefetch_related('tickets'))
+
     with transaction.atomic():
-      for i in range(COUNT):
-        booking = Booking.objects.filter(book_ref=generate_book_ref(i)).first()
-        if booking:
-          booking.total_amount += Decimal('10.00')
-          booking.save(update_fields=['total_amount'])
-          for ticket in booking.tickets.all():
-            ticket.passenger_name = 'Nested update'
-            ticket.save(update_fields=['passenger_name'])
+      for booking in bookings:
+        booking.total_amount += Decimal('10.00')
+        booking.save(update_fields=['total_amount'])
+        for ticket in booking.tickets.all():
+          ticket.passenger_name = 'Nested update'
+          ticket.save(update_fields=['passenger_name'])
   except Exception:
     pass
 
