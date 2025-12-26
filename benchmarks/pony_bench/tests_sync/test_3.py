@@ -34,8 +34,6 @@ def main() -> None:
           book_date=get_curr_date(),
           total_amount=generate_amount(i),
         )
-
-      commit()
     except Exception:
       pass
 

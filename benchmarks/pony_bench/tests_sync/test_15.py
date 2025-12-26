@@ -13,13 +13,13 @@ def generate_book_ref(i: int) -> str:
 def main() -> None:
   start = time.perf_counter_ns()
 
-  for i in range(COUNT):
-    with db_session():
+  with db_session():
+    for i in range(COUNT):
       try:
         booking = Booking.get(book_ref=generate_book_ref(i))
         if booking:
           booking.delete()
-        commit()
+          commit()
       except Exception:
         pass
 

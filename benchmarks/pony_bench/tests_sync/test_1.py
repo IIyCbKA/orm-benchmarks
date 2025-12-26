@@ -26,8 +26,8 @@ def get_curr_date():
 def main() -> None:
   start = time.perf_counter_ns()
 
-  for i in range(COUNT):
-    with db_session():
+  with db_session():
+    for i in range(COUNT):
       try:
         Booking(
           book_ref=generate_book_ref(i),

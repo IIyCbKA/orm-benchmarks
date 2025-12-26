@@ -1,4 +1,4 @@
-from pony.orm import db_session, commit
+from pony.orm import db_session, flush
 from core.models import Booking
 import os
 import time
@@ -19,7 +19,7 @@ def main() -> None:
         booking = Booking.get(book_ref=generate_book_ref(i))
         if booking:
           booking.delete()
-      commit()
+          flush()
     except Exception:
       pass
 

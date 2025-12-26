@@ -34,7 +34,6 @@ def main() -> None:
           booking.total_amount = get_new_amount(i)
           booking.book_date = get_curr_date()
           flush()
-          commit()
       except Exception:
         pass
 

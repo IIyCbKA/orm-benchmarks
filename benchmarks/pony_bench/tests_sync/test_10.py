@@ -16,7 +16,7 @@ def main() -> None:
   amount_high = Decimal('500.00')
   start = time.perf_counter_ns()
 
-  with (db_session()):
+  with db_session():
     try:
       _ = Booking.select(lambda b:
         amount_low <= b.total_amount <= amount_high
