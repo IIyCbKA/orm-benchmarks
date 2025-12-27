@@ -15,6 +15,24 @@ published on Docker Hub at:
 https://hub.docker.com/repository/docker/iiycbka/sql-orm-benchmarks-db.
 
 ---
+### Server specifications:
+
+**Bare minimum**\
+Minimum server specifications for conducting measurements:
+- 2 × 3.3 GHz CPUs
+- 2 GB RAM
+
+**Minimum recommended**\
+Minimum recommended server specifications for conducting measurements:
+- 2 × 3.3 GHz CPUs
+- 4 GB RAM
+
+**Recommended**\
+Recommended server specifications for conducting measurements:
+- 4 × 3.3 GHz CPUs
+- 8 GB RAM
+
+---
 
 ### Running
 
