@@ -7,7 +7,7 @@ def main() -> None:
 
   with db_session():
     try:
-        _ = Booking.select().first()
+        _ = Booking.select().order_by(Booking.book_ref).first()
     except Exception:
       pass
 

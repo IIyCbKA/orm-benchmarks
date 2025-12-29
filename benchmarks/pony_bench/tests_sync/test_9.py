@@ -1,4 +1,4 @@
-from pony.orm import db_session, left_join
+from pony.orm import db_session, select
 from core.models import Ticket
 import time
 
@@ -11,9 +11,11 @@ def main() -> None:
 
   with db_session():
     try:
-      _ = list(left_join(
-        (t, b) for t in Ticket for b in t.book_ref if b.book_ref == generate_book_ref(1)
-      ))
+      _ = list(
+        select((t, t.book_ref)
+        for t in Ticket
+        if t.book_ref.book_ref == generate_book_ref(1))
+      )
     except Exception:
       pass
 

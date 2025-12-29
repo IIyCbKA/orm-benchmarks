@@ -29,7 +29,9 @@ def main() -> None:
   with db_session():
     try:
       for i in range(COUNT):
-        booking = Booking.get(book_ref=generate_book_ref(i))
+        booking = Booking.select(
+          lambda b: b.book_ref == generate_book_ref(i)).order_by(
+          Booking.book_ref).first()
         if booking:
           booking.total_amount = get_new_amount(i)
           booking.book_date = get_curr_date()

@@ -16,7 +16,7 @@ class Booking(db.Entity):
 
   book_ref = PrimaryKey(str, max_len=6, sql_type='char(6)')
   book_date = Required(datetime, sql_type='timestamptz')
-  total_amount = Required(Decimal, precision=10, scale=2)
+  total_amount = Required(Decimal, precision=10, scale=2, optimistic=False)
 
   tickets = Set('Ticket', reverse='book_ref')
 
@@ -41,4 +41,4 @@ db.bind(
   database=os.environ.get('POSTGRES_DB', 'postgres'),
 )
 
-db.generate_mapping(create_tables=False)
+db.generate_mapping(create_tables=False, check_tables=False)

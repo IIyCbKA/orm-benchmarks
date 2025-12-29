@@ -1,4 +1,4 @@
-from pony.orm import db_session, left_join
+from pony.orm import db_session, select
 from core.models import Ticket
 import time
 
@@ -7,7 +7,7 @@ def main() -> None:
 
   with db_session():
     try:
-      _ = left_join((t, b) for t in Ticket for b in t.book_ref).first()
+      _ = select((t, t.book_ref) for t in Ticket).order_by(Ticket.ticket_no).first()
     except Exception:
       pass
 

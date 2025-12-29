@@ -16,7 +16,9 @@ def main() -> None:
   with db_session():
     try:
       for i in range(COUNT):
-        booking = Booking.get(book_ref=generate_book_ref(i))
+        booking = Booking.select(
+          lambda b: b.book_ref == generate_book_ref(i)).order_by(
+          Booking.book_ref).first()
         if booking:
           booking.delete()
           flush()

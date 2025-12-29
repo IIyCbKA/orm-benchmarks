@@ -11,7 +11,9 @@ def main() -> None:
 
   with db_session():
     try:
-      _ = Booking.get(book_ref=generate_book_ref(1))
+      _ = Booking.select(
+        lambda b: b.book_ref == generate_book_ref(1)
+      ).order_by(Booking.book_ref).first()
     except Exception:
       pass
 
