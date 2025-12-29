@@ -12,8 +12,8 @@ def main() -> None:
             _ = session.scalars(
                 select(Booking).limit(1)
             ).first()
-    except Exception:
-        pass
+    except Exception as e:
+        print(e)
 
     elapsed = time.perf_counter_ns() - start
 

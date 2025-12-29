@@ -5,24 +5,24 @@ from tests_async.db import AsyncSessionLocal
 from core.models import Booking
 
 async def main() -> None:
-    start = time.time()
+    start = time.perf_counter_ns()
 
     try:
         async with AsyncSessionLocal() as session:
-            result = await session.scalars(select(Booking))
-            bookings = result.all()
+            stmt = select(Booking)
+            result = await session.scalars(stmt)
+            bookings = [b for b in result]
+    except Exception as e:
+        print(e)
 
-            for b in bookings:
-                _ = b.book_ref
-    except Exception:
-        pass
-
-    elapsed = time.time() - start
+    end = time.perf_counter_ns()
+    elapsed = end - start
 
     print(
-        f'SQLAlchemy Async. Test 5. Find all (materialized)\n'
-        f'elapsed_sec={elapsed:.4f};'
+        f"SQLAlchemy ORM (async). Test 5. Find all\n"
+        f"elapsed_ns={elapsed:.0f};"
     )
+
 
 if __name__ == "__main__":
     asyncio.run(main())

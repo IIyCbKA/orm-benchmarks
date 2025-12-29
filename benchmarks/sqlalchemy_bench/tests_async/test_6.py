@@ -6,20 +6,22 @@ from core.models import Booking
 
 
 async def main() -> None:
-    start = time.time()
+    start = time.perf_counter_ns()
 
     try:
         async with AsyncSessionLocal() as session:
-            result = await session.execute(select(Booking).limit(1))
-            _ = result.scalars().first()
-    except Exception:
-        pass
+            booking = await session.scalar(
+                select(Booking).limit(1)
+            )
+    except Exception as e:
+        print(e)
 
-    elapsed = time.time() - start
+    end = time.perf_counter_ns()
+    elapsed = end - start
 
     print(
-        f'SQLAlchemy Async. Test 6. Find first\n'
-        f'elapsed_sec={elapsed:.4f};'
+        f"SQLAlchemy ORM (async). Test 6. Find first\n"
+        f"elapsed_ns={elapsed:.0f};"
     )
 
 

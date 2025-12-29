@@ -14,35 +14,36 @@ OFFSET = int(os.environ.get('OFFSET', '500'))
 async def main() -> None:
     now = datetime.now(UTC)
     date_from = now - timedelta(days=30)
-    amount_low = Decimal('50.00')
-    amount_high = Decimal('500.00')
-    start = time.time()
+    amount_low = Decimal("50.00")
+    amount_high = Decimal("500.00")
+    start = time.perf_counter_ns()
 
     try:
         async with AsyncSessionLocal() as session:
             stmt = (
                 select(Booking)
                 .where(
-                    Booking.total_amount.between(amount_low, amount_high),
-                    Booking.book_date >= date_from
+                    Booking.total_amount >= amount_low,
+                    Booking.total_amount <= amount_high,
+                    Booking.book_date >= date_from,
                 )
                 .order_by(asc(Booking.total_amount))
-                .limit(LIMIT)
                 .offset(OFFSET)
+                .limit(LIMIT)
             )
-
             result = await session.scalars(stmt)
-            results = result.all()
-    except Exception:
-        pass
+            bookings = [b for b in result]
 
-    elapsed = time.time() - start
+    except Exception as e:
+        print(e)
+
+    end = time.perf_counter_ns()
+    elapsed = end - start
 
     print(
-        f'SQLAlchemy Async. Test 10. Filter, paginate & sort\n'
-        f'elapsed_sec={elapsed:.4f};'
+        f"SQLAlchemy ORM (async). Test 10. Filter, paginate & sort\n"
+        f"elapsed_ns={elapsed:.0f};"
     )
-
 
 if __name__ == "__main__":
     asyncio.run(main())

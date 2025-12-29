@@ -40,8 +40,8 @@ def main() -> None:
                     booking.total_amount = get_new_amount(i)
                     booking.book_date = get_curr_date()
                     session.flush()
-    except Exception:
-        pass
+    except Exception as e:
+        print(e)
 
     elapsed = time.perf_counter_ns() - start
 

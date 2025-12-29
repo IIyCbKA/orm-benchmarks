@@ -32,38 +32,47 @@ def get_curr_date():
     return datetime.now(UTC)
 
 
+async def create_nested_async():
+    async with AsyncSessionLocal() as session:
+        for i in range(COUNT):
+            try:
+                async with session.begin():
+                    booking = Booking(
+                        book_ref=generate_book_ref(i),
+                        book_date=get_curr_date(),
+                        total_amount=generate_amount(i),
+                    )
+                    session.add(booking)
+                    await session.flush()
+
+                    ticket = Ticket(
+                        ticket_no=generate_ticket_no(i),
+                        book_ref=booking.book_ref,
+                        passenger_id=generate_passenger_id(i),
+                        passenger_name="Test",
+                        outbound=True,
+                    )
+                    session.add(ticket)
+                    await session.flush()
+            except Exception as e:
+                print(e)
+
+
+
 async def main() -> None:
-    start = time.time()
+    start = time.perf_counter_ns()
 
     try:
-        async with AsyncSessionLocal() as session:
-            for i in range(COUNT):
-                booking = Booking(
-                    book_ref=generate_book_ref(i),
-                    book_date=get_curr_date(),
-                    total_amount=generate_amount(i),
-                )
-
-                ticket = Ticket(
-                    ticket_no=generate_ticket_no(i),
-                    passenger_id=generate_passenger_id(i),
-                    passenger_name="Test",
-                    outbound=True,
-                    book_ref=booking
-                )
-
-                session.add(booking)
-                session.add(ticket)
-
-            await session.commit()
+        await create_nested_async()
     except Exception:
         pass
 
-    elapsed = time.time() - start
+    end = time.perf_counter_ns()
+    elapsed = end - start
 
     print(
-        f'SQLAlchemy Async. Test 4. Nested create. {COUNT} entities\n'
-        f'elapsed_sec={elapsed:.4f};'
+        f"SQLAlchemy ORM (async). Test 4. Nested create. {COUNT} entities\n"
+        f"elapsed_ns={elapsed:.0f};"
     )
 
 

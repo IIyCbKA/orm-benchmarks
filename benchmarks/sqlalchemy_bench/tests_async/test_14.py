@@ -1,7 +1,7 @@
 import asyncio
 import os
 import time
-from sqlalchemy import select
+from sqlalchemy import delete
 from tests_async.db import AsyncSessionLocal
 from core.models import Booking
 
@@ -12,26 +12,28 @@ def generate_book_ref(i: int) -> str:
     return f'a{i:05d}'
 
 
+async def delete_booking_async():
+    refs = [generate_book_ref(i) for i in range(COUNT)]
+    async with AsyncSessionLocal() as session:
+        async with session.begin():
+            stmt = delete(Booking).where(Booking.book_ref.in_(refs))
+            await session.execute(stmt)
+
+
 async def main() -> None:
-    start = time.time()
+    start = time.perf_counter_ns()
 
     try:
-        async with AsyncSessionLocal() as session:
-            for i in range(COUNT):
-                stmt = select(Booking).where(Booking.book_ref == generate_book_ref(i))
-                result = await session.scalars(stmt)
-                booking = result.first()
-                if booking:
-                    await session.delete(booking)
-            await session.commit()
-    except Exception:
-        pass
+        await delete_booking_async()
+    except Exception as e:
+        print(e)
 
-    elapsed = time.time() - start
+    end = time.perf_counter_ns()
+    elapsed = end - start
 
     print(
-        f'SQLAlchemy Async. Test 14. Batch delete. {COUNT} entries\n'
-        f'elapsed_sec={elapsed:.4f};'
+        f"SQLAlchemy ORM (async). Test 14. Batch delete. {COUNT} entries\n"
+        f"elapsed_ns={elapsed:.0f};"
     )
 
 

@@ -14,13 +14,11 @@ def main() -> None:
 
     try:
         with SessionLocal() as session:
-            _ = session.scalars(
-                select(Ticket)
-                .options(joinedload(Ticket.booking))
-                .where(Ticket.book_ref == generate_book_ref(1))
-            ).all()
-    except Exception:
-        pass
+            stmt = select(Ticket).where(Ticket.book_ref == generate_book_ref(1))
+            result = session.scalars(stmt)
+            tickets = [t for t in result]
+    except Exception as e:
+        print(e)
 
     elapsed = time.perf_counter_ns() - start
 

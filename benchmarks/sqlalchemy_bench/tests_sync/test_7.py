@@ -10,11 +10,14 @@ def main() -> None:
 
     try:
         with SessionLocal() as session:
-            _ = session.scalars(
-                select(Ticket).options(joinedload(Ticket.booking)).limit(1)
-            ).first()
-    except Exception:
-        pass
+            stmt = select(Ticket).limit(1)
+            ticket = session.scalar(stmt)
+
+            if ticket:
+                book_ref_value = ticket.book_ref
+
+    except Exception as e:
+        print(e)
 
     elapsed = time.perf_counter_ns() - start
 

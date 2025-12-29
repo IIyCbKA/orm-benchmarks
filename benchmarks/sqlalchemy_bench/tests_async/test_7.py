@@ -1,28 +1,31 @@
 import asyncio
 import time
 from sqlalchemy import select
+from sqlalchemy.orm import selectinload
 from tests_async.db import AsyncSessionLocal
-from core.models import Booking
+from core.models import Booking, Ticket
 
 
 async def main() -> None:
-    start = time.time()
+    start = time.perf_counter_ns()
 
     try:
         async with AsyncSessionLocal() as session:
-            result = await session.execute(select(Booking).limit(1))
-            book = result.scalars().first()
-            if book:
-                await book.tickets
-                _ = len(book.tickets)
-    except Exception:
-        pass
+            stmt = select(Ticket).limit(1)
+            ticket = await session.scalar(stmt)
 
-    elapsed = time.time() - start
+            if ticket:
+                book_ref_value = ticket.book_ref
+
+    except Exception as e:
+        print(e)
+
+    end = time.perf_counter_ns()
+    elapsed = end - start
 
     print(
-        f'SQLAlchemy Async. Test 7. Nested find first\n'
-        f'elapsed_sec={elapsed:.4f};'
+        f"SQLAlchemy ORM (async). Test 7. Nested find first\n"
+        f"elapsed_ns={elapsed:.0f};"
     )
 
 

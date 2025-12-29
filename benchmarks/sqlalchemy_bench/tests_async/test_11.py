@@ -6,7 +6,7 @@ from functools import lru_cache
 from tests_async.db import AsyncSessionLocal
 from core.models import Booking
 import os
-from sqlalchemy import select
+from sqlalchemy import update
 
 COUNT = int(os.environ.get('ITERATIONS', '2500'))
 
@@ -24,28 +24,35 @@ def get_curr_date():
     return datetime.now(UTC)
 
 
+async def update_booking_async():
+    async with AsyncSessionLocal() as session:
+        async with session.begin():
+            for i in range(COUNT):
+                stmt = (
+                    update(Booking)
+                    .where(Booking.book_ref == generate_book_ref(i))
+                    .values(
+                        total_amount=get_new_amount(i),
+                        book_date=get_curr_date()
+                    )
+                )
+                await session.execute(stmt)
+
+
 async def main() -> None:
-    start = time.time()
+    start = time.perf_counter_ns()
 
     try:
-        async with AsyncSessionLocal() as session:
-            for i in range(COUNT):
-                stmt = select(Booking).where(Booking.book_ref == generate_book_ref(i))
-                result = await session.execute(stmt)
-                booking = result.first()
-                if booking:
-                    obj = booking[0]
-                    obj.total_amount = get_new_amount(i)
-                    obj.book_date = get_curr_date()
-            await session.commit()
-    except Exception:
-        pass
+        await update_booking_async()
+    except Exception as e:
+        print(e)
 
-    elapsed = time.time() - start
+    end = time.perf_counter_ns()
+    elapsed = end - start
 
     print(
-        f'SQLAlchemy Async. Test 11. Batch update. {COUNT} entries\n'
-        f'elapsed_sec={elapsed:.4f};'
+        f"SQLAlchemy ORM (async). Test 11. Batch update. {COUNT} entries\n"
+        f"elapsed_ns={elapsed:.0f};"
     )
 
 

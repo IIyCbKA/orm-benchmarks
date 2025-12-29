@@ -32,8 +32,8 @@ def main() -> None:
             )
 
             results = session.scalars(stmt).all()
-    except Exception:
-        pass
+    except Exception as e:
+        print(e)
 
     elapsed = time.perf_counter_ns() - start
 

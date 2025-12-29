@@ -10,21 +10,21 @@ def generate_book_ref(i: int) -> str:
 
 
 async def main() -> None:
-    start = time.time()
+    start = time.perf_counter_ns()
 
     try:
         async with AsyncSessionLocal() as session:
-            stmt = select(Booking).where(Booking.book_ref == generate_book_ref(1))
-            result = await session.scalars(stmt)
-            _ = result.one_or_none()
-    except Exception:
-        pass
+            stmt = select(Booking).where(Booking.book_ref == generate_book_ref(1)).limit(1)
+            booking = await session.scalar(stmt)
+    except Exception as e:
+        print(e)
 
-    elapsed = time.time() - start
+    end = time.perf_counter_ns()
+    elapsed = end - start
 
     print(
-        f'SQLAlchemy Async. Test 8. Find unique\n'
-        f'elapsed_sec={elapsed:.4f};'
+        f"SQLAlchemy ORM (async). Test 8. Find unique\n"
+        f"elapsed_ns={elapsed:.0f};"
     )
 
 

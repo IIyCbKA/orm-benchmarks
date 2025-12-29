@@ -48,7 +48,7 @@ def main() -> None:
 
                 ticket = Ticket(
                     ticket_no=generate_ticket_no(i),
-                    booking=booking,
+                    book_ref=booking.book_ref,
                     passenger_id=generate_passenger_id(i),
                     passenger_name="Test",
                     outbound=True,
@@ -56,8 +56,8 @@ def main() -> None:
                 session.add(ticket)
                 session.flush()
 
-        except Exception:
-            pass
+        except Exception as e:
+            print(e)
 
     elapsed = time.perf_counter_ns() - start
 

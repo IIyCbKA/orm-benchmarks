@@ -2,7 +2,7 @@ import asyncio
 import time
 from sqlalchemy import select
 from tests_async.db import AsyncSessionLocal
-from core.models import Booking
+from core.models import Booking, Ticket
 
 
 def generate_book_ref(i: int) -> str:
@@ -10,25 +10,22 @@ def generate_book_ref(i: int) -> str:
 
 
 async def main() -> None:
-    start = time.time()
+    start = time.perf_counter_ns()
 
     try:
         async with AsyncSessionLocal() as session:
-            stmt = select(Booking).where(Booking.book_ref == generate_book_ref(1))
+            stmt = select(Ticket).where(Ticket.book_ref == generate_book_ref(1))
             result = await session.scalars(stmt)
-            book = result.one_or_none()
+            tickets = [t for t in result]
+    except Exception as e:
+        print(e)
 
-            if book:
-                await book.tickets
-                _ = len(book.tickets)
-    except Exception:
-        pass
-
-    elapsed = time.time() - start
+    end = time.perf_counter_ns()
+    elapsed = end - start
 
     print(
-        f'SQLAlchemy Async. Test 9. Nested find unique\n'
-        f'elapsed_sec={elapsed:.4f};'
+        f"SQLAlchemy ORM (async). Test 9. Nested find unique\n"
+        f"elapsed_ns={elapsed:.0f};"
     )
 
 

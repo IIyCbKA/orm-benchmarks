@@ -24,28 +24,36 @@ def get_curr_date():
     return datetime.now(UTC)
 
 
-async def main() -> None:
-    start = time.time()
-
+async def batch_create_async() -> None:
     try:
         async with AsyncSessionLocal() as session:
-            for i in range(COUNT):
-                item = Booking(
-                    book_ref=generate_book_ref(i),
-                    book_date=get_curr_date(),
-                    total_amount=generate_amount(i),
-                )
-                session.add(item)
-
-            await session.commit()
+            async with session.begin():
+                for i in range(COUNT):
+                    booking = Booking(
+                        book_ref=generate_book_ref(i),
+                        book_date=get_curr_date(),
+                        total_amount=generate_amount(i),
+                    )
+                    session.add(booking)
+                await session.flush()
     except Exception:
         pass
 
-    elapsed = time.time() - start
+
+async def main() -> None:
+    start = time.perf_counter_ns()
+
+    try:
+        await batch_create_async()
+    except Exception as e:
+        print(e)
+
+    end = time.perf_counter_ns()
+    elapsed = end - start
 
     print(
-        f'SQLAlchemy Async. Test 2. Batch create. {COUNT} entities\n'
-        f'elapsed_sec={elapsed:.4f};'
+        f"SQLAlchemy ORM (async). Test 2. Batch create. {COUNT} entities\n"
+        f"elapsed_ns={elapsed:.0f};"
     )
 
 
