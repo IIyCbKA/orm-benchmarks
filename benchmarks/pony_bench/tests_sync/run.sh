@@ -1,9 +1,13 @@
 #!/bin/sh
+set -e
 
 cd $(dirname $0)
 
 # Add a root dir for correct imports
 export PYTHONPATH=..
+
+# db warm-up
+python -m warmup
 
 # Test 1 -> Single create
 python -m test_1
@@ -46,3 +50,6 @@ python -m test_13
 
 # Test 14 -> Batch delete
 python -m test_14
+
+# Test 15 -> Single delete
+python -m test_15

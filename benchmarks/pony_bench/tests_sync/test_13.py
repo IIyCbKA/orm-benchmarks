@@ -1,37 +1,41 @@
 from decimal import Decimal
-from pony.orm import db_session, commit
-from core.models import Booking
+from pony.orm import db_session, select
+from core.models import Booking, Ticket
 import os
+import sys
 import time
 
 COUNT = int(os.environ.get('ITERATIONS', '2500'))
 
 
 def generate_book_ref(i: int) -> str:
-  return f'a{i:05d}'
+  return f'd{i:05d}'
 
 
 def main() -> None:
-  start = time.time()
+  start = time.perf_counter_ns()
 
-  with db_session():
-    try:
+  try:
+    with db_session:
       for i in range(COUNT):
-        booking = Booking.get(book_ref=generate_book_ref(i))
-        if booking:
-          booking.total_amount += Decimal('10.00')
-          for ticket in booking.tickets:
-            ticket.passenger_name = 'Nested update'
-      commit()
-    except Exception:
-      pass
+        book_ref = generate_book_ref(i)
+        select(b for b in Booking if b.book_ref == book_ref).update(
+          total_amount=Booking.total_amount + Decimal('10.00')
+        )
 
-  end = time.time()
+        select(t for t in Ticket if t.book_ref == book_ref).update(
+          passenger_name='Nested update'
+        )
+  except Exception as e:
+    print(f'[ERROR] Test 13 failed: {e}')
+    sys.exit(1)
+
+  end = time.perf_counter_ns()
   elapsed = end - start
 
   print(
     f'PonyORM. Test 13. Nested batch update. {COUNT} entries\n'
-    f'elapsed_sec={elapsed:.4f};'
+    f'elapsed_ns={elapsed}'
   )
 
 

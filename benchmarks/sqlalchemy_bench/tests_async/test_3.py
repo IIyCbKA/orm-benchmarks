@@ -1,8 +1,9 @@
 import asyncio
-import os
-import time
 from datetime import datetime, UTC
 from decimal import Decimal
+from functools import lru_cache
+import os
+import time
 
 from sqlalchemy import insert
 from tests_async.db import AsyncSessionLocal
@@ -16,35 +17,45 @@ def generate_book_ref(i: int) -> str:
 
 
 def generate_amount(i: int) -> Decimal:
-    value = i + 500
-    return Decimal(value) / Decimal('10.00')
+    return Decimal(i + 500) / Decimal('10.00')
+
+
+@lru_cache(1)
+def get_curr_date():
+    return datetime.now(UTC)
+
+
+async def bulk_create_async() -> None:
+    async with AsyncSessionLocal() as session:
+        async with session.begin():
+            objs = [
+                Booking(
+                    book_ref=generate_book_ref(i),
+                    book_date=get_curr_date(),
+                    total_amount=generate_amount(i),
+                )
+                for i in range(COUNT)
+            ]
+            session.add_all(objs)
+            await session.flush()
 
 
 async def main() -> None:
-    start = time.time()
-
-    rows = []
-    for i in range(COUNT):
-        rows.append({
-            "book_ref": generate_book_ref(i),
-            "book_date": datetime.now(UTC),
-            "total_amount": generate_amount(i),
-        })
+    start = time.perf_counter_ns()
 
     try:
-        async with AsyncSessionLocal() as session:
-            await session.execute(insert(Booking), rows)
-            await session.commit()
-    except Exception:
-        pass
+        await bulk_create_async()
+    except Exception as e:
+        print(e)
 
-    elapsed = time.time() - start
+    end = time.perf_counter_ns()
+    elapsed = end - start
 
     print(
-        f'SQLAlchemy Async. Test 3. Bulk insert\n'
-        f'elapsed_sec={elapsed:.4f};'
+        f"SQLAlchemy (async). Test 3. Bulk create. {COUNT} entities\n"
+        f"elapsed_ns={elapsed:.0f};"
     )
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     asyncio.run(main())

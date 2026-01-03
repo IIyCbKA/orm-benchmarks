@@ -1,9 +1,10 @@
 from datetime import datetime, UTC
 from decimal import Decimal
 from functools import lru_cache
-from pony.orm import db_session, commit
+from pony.orm import db_session, commit, select
 from core.models import Booking
 import os
+import sys
 import time
 
 COUNT = int(os.environ.get('ITERATIONS', '2500'))
@@ -24,25 +25,26 @@ def get_curr_date():
 
 
 def main() -> None:
-  start = time.time()
+  start = time.perf_counter_ns()
 
-  for i in range(COUNT):
-    with db_session():
-      try:
-        booking = Booking.get(book_ref=generate_book_ref(i))
-        if booking:
-          booking.total_amount = get_new_amount(i)
-          booking.book_date = get_curr_date()
+  try:
+    with db_session:
+      for i in range(COUNT):
+        select(b for b in Booking if b.book_ref == generate_book_ref(i)).update(
+          total_amount=get_new_amount(i),
+          book_date=get_curr_date()
+        )
         commit()
-      except Exception:
-        pass
+  except Exception as e:
+    print(f'[ERROR] Test 12 failed: {e}')
+    sys.exit(1)
 
-  end = time.time()
+  end = time.perf_counter_ns()
   elapsed = end - start
 
   print(
     f'PonyORM. Test 12. Single update. {COUNT} entries\n'
-    f'elapsed_sec={elapsed:.4f};'
+    f'elapsed_ns={elapsed}'
   )
 
 
