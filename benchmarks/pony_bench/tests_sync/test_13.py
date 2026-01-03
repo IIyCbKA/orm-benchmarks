@@ -19,11 +19,11 @@ def main() -> None:
     with db_session:
       for i in range(COUNT):
         book_ref = generate_book_ref(i)
-        select(b for b in Booking if b.book_ref == book_ref).update(
+        select(b for b in Booking if b.book_ref == book_ref).set(
           total_amount=Booking.total_amount + Decimal('10.00')
         )
 
-        select(t for t in Ticket if t.book_ref == book_ref).update(
+        select(t for t in Ticket if t.book_ref == book_ref).set(
           passenger_name='Nested update'
         )
   except Exception as e:

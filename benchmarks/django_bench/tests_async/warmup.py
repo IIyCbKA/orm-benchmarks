@@ -41,8 +41,8 @@ def warm_up() -> None:
         t.passenger_name = 'WarmUpdate'
         t.save(update_fields=['passenger_name'])
 
-        b.delete()
         t.delete()
+        b.delete()
   except Exception as e:
     print(f'[ERROR] Warm-up failed: {e}')
     sys.exit(1)

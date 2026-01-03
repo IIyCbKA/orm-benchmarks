@@ -30,7 +30,7 @@ def main() -> None:
   try:
     with db_session:
       for i in range(COUNT):
-        select(b for b in Booking if b.book_ref == generate_book_ref(i)).update(
+        select(b for b in Booking if b.book_ref == generate_book_ref(i)).set(
           total_amount=get_new_amount(i),
           book_date=get_curr_date()
         )
