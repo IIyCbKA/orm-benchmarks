@@ -1,3 +1,4 @@
+import sys
 import time
 
 import django
@@ -10,16 +11,16 @@ def main() -> None:
 
   try:
     _ = Ticket.objects.select_related('book_ref').first()
-
-  except Exception:
-    pass
+  except Exception as e:
+    print(f'[ERROR] Test 7 failed: {e}')
+    sys.exit(1)
 
   end = time.perf_counter_ns()
   elapsed = end - start
 
   print(
     f'Django ORM (sync). Test 7. Nested find first\n'
-    f'elapsed_ns={elapsed:.0f};'
+    f'elapsed_ns={elapsed}'
   )
 
 

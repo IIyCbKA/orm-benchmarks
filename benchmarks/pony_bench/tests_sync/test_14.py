@@ -1,6 +1,7 @@
-from pony.orm import db_session, flush
+from pony.orm import db_session, select
 from core.models import Booking
 import os
+import sys
 import time
 
 COUNT = int(os.environ.get('ITERATIONS', '2500'))
@@ -13,22 +14,20 @@ def generate_book_ref(i: int) -> str:
 def main() -> None:
   start = time.perf_counter_ns()
 
-  with db_session():
-    try:
+  try:
+    with db_session:
       for i in range(COUNT):
-        booking = Booking.get(book_ref=generate_book_ref(i))
-        if booking:
-          booking.delete()
-          flush()
-    except Exception:
-      pass
+        select(b for b in Booking if b.book_ref == generate_book_ref(i)).delete(bulk=True)
+  except Exception as e:
+    print(f'[ERROR] Test 14 failed: {e}')
+    sys.exit(1)
 
   end = time.perf_counter_ns()
   elapsed = end - start
 
   print(
     f'PonyORM. Test 14. Batch delete. {COUNT} entries\n'
-    f'elapsed_ns={elapsed:.0f};'
+    f'elapsed_ns={elapsed}'
   )
 
 

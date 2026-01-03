@@ -2,6 +2,7 @@ from decimal import Decimal
 from functools import lru_cache
 import asyncio
 import os
+import sys
 import time
 
 import django
@@ -38,25 +39,22 @@ def get_curr_date():
 
 
 @sync_to_async
-def create_nested_sync():
+def create_nested_sync() -> None:
   for i in range(COUNT):
-    try:
-      with transaction.atomic():
-        booking = Booking.objects.create(
-          book_ref=generate_book_ref(i),
-          book_date=get_curr_date(),
-          total_amount=generate_amount(i),
-        )
+    with transaction.atomic():
+      booking = Booking.objects.create(
+        book_ref=generate_book_ref(i),
+        book_date=get_curr_date(),
+        total_amount=generate_amount(i),
+      )
 
-        _ = Ticket.objects.create(
-          ticket_no=generate_ticket_no(i),
-          book_ref=booking,
-          passenger_id=generate_passenger_id(i),
-          passenger_name='Test',
-          outbound=True
-        )
-    except Exception:
-      pass
+      _ = Ticket.objects.create(
+        ticket_no=generate_ticket_no(i),
+        book_ref=booking,
+        passenger_id=generate_passenger_id(i),
+        passenger_name='Test',
+        outbound=True
+      )
 
 
 async def main() -> None:
@@ -64,15 +62,16 @@ async def main() -> None:
 
   try:
     await create_nested_sync()
-  except Exception:
-    pass
+  except Exception as e:
+    print(f'[ERROR] Test 4 failed: {e}')
+    sys.exit(1)
 
   end = time.perf_counter_ns()
   elapsed = end - start
 
   print(
     f'Django ORM (async). Test 4. Nested create. {COUNT} entities\n'
-    f'elapsed_ns={elapsed:.0f};'
+    f'elapsed_ns={elapsed}'
   )
 
 

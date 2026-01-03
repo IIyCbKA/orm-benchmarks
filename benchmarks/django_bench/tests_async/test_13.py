@@ -1,38 +1,36 @@
 from decimal import Decimal
 import asyncio
 import os
+import sys
 import time
 
 import django
 django.setup()
 
 from asgiref.sync import sync_to_async
-from core.models import Booking
+from core.models import Booking, Ticket
 from django.db import transaction
+from django.db.models import F
 
 COUNT = int(os.environ.get('ITERATIONS', '2500'))
 
 
 def generate_book_ref(i: int) -> str:
-  return f'a{i:05d}'
+  return f'd{i:05d}'
 
 
 @sync_to_async
-def update_nested_sync():
-  try:
-    refs = [generate_book_ref(i) for i in range(COUNT)]
-    bookings = list(Booking.objects.filter(
-      book_ref__in=refs).prefetch_related('tickets'))
+def update_nested_sync() -> None:
+  with transaction.atomic():
+    for i in range(COUNT):
+      book_ref = generate_book_ref(i)
+      Booking.objects.filter(book_ref=book_ref).update(
+        total_amount=F('total_amount') + Decimal('10.00')
+      )
 
-    with transaction.atomic():
-      for booking in bookings:
-        booking.total_amount += Decimal('10.00')
-        booking.save(update_fields=['total_amount'])
-        for ticket in booking.tickets.all():
-          ticket.passenger_name = 'Nested update'
-          ticket.save(update_fields=['passenger_name'])
-  except Exception:
-    pass
+      Ticket.objects.filter(book_ref=book_ref).update(
+        passenger_name='Nested update'
+      )
 
 
 async def main() -> None:
@@ -40,15 +38,16 @@ async def main() -> None:
 
   try:
     await update_nested_sync()
-  except Exception:
-    pass
+  except Exception as e:
+    print(f'[ERROR] Test 13 failed: {e}')
+    sys.exit(1)
 
   end = time.perf_counter_ns()
   elapsed = end - start
 
   print(
     f'Django ORM (async). Test 13. Nested batch update. {COUNT} entries\n'
-    f'elapsed_ns={elapsed:.0f};'
+    f'elapsed_ns={elapsed}'
   )
 
 

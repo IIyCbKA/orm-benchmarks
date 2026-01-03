@@ -1,6 +1,7 @@
 from decimal import Decimal
 from functools import lru_cache
 import os
+import sys
 import time
 
 import django
@@ -38,8 +39,8 @@ def get_curr_date():
 def main() -> None:
   start = time.perf_counter_ns()
 
-  for i in range(COUNT):
-    try:
+  try:
+    for i in range(COUNT):
       with transaction.atomic():
         booking = Booking.objects.create(
           book_ref=generate_book_ref(i),
@@ -54,15 +55,16 @@ def main() -> None:
           passenger_name='Test',
           outbound=True
         )
-    except Exception:
-      pass
+  except Exception as e:
+    print(f'[ERROR] Test 4 failed: {e}')
+    sys.exit(1)
 
   end = time.perf_counter_ns()
   elapsed = end - start
 
   print(
     f'Django ORM (sync). Test 4. Nested create. {COUNT} entities\n'
-    f'elapsed_ns={elapsed:.0f};'
+    f'elapsed_ns={elapsed}'
   )
 
 

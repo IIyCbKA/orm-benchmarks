@@ -2,6 +2,7 @@ from decimal import Decimal
 from functools import lru_cache
 import asyncio
 import os
+import sys
 import time
 
 import django
@@ -30,17 +31,13 @@ def get_curr_date():
 
 
 @sync_to_async
-def update_booking_sync():
-  try:
-    with transaction.atomic():
-      for i in range(COUNT):
-        booking = Booking.objects.filter(book_ref=generate_book_ref(i)).first()
-        if booking:
-          booking.total_amount = get_new_amount(i)
-          booking.book_date = get_curr_date()
-          booking.save(update_fields=['total_amount', 'book_date'])
-  except Exception:
-    pass
+def update_booking_sync() -> None:
+  with transaction.atomic():
+    for i in range(COUNT):
+      Booking.objects.filter(book_ref=generate_book_ref(i)).update(
+        total_amount=get_new_amount(i),
+        book_date=get_curr_date()
+      )
 
 
 async def main() -> None:
@@ -48,15 +45,16 @@ async def main() -> None:
 
   try:
     await update_booking_sync()
-  except Exception:
-    pass
+  except Exception as e:
+    print(f'[ERROR] Test 11 failed: {e}')
+    sys.exit(1)
 
   end = time.perf_counter_ns()
   elapsed = end - start
 
   print(
     f'Django ORM (async). Test 11. Batch update. {COUNT} entries\n'
-    f'elapsed_ns={elapsed:.0f};'
+    f'elapsed_ns={elapsed}'
   )
 
 

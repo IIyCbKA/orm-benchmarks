@@ -1,5 +1,6 @@
 import asyncio
 import os
+import sys
 import time
 
 import django
@@ -16,11 +17,10 @@ def generate_book_ref(i: int) -> str:
 
 async def delete_booking(i: int) -> None:
   try:
-    booking = await Booking.objects.filter(book_ref=generate_book_ref(i)).afirst()
-    if booking:
-      await booking.adelete()
-  except Exception:
-    pass
+    await Booking.objects.filter(book_ref=generate_book_ref(i)).adelete()
+  except Exception as e:
+    print(f'[ERROR] Test 15 failed: {e}')
+    sys.exit(1)
 
 
 async def main() -> None:
@@ -34,7 +34,7 @@ async def main() -> None:
 
   print(
     f'Django ORM (async). Test 15. Single delete. {COUNT} entries\n'
-    f'elapsed_ns={elapsed:.0f};'
+    f'elapsed_ns={elapsed}'
   )
 
 

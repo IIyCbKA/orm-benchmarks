@@ -2,6 +2,7 @@ from datetime import timedelta
 from decimal import Decimal
 import asyncio
 import os
+import sys
 import time
 
 import django
@@ -27,15 +28,16 @@ async def main() -> None:
       total_amount__lte=amount_high,
       book_date__gte=date_from
     ).order_by('total_amount')[OFFSET:OFFSET + LIMIT]]
-  except Exception:
-    pass
+  except Exception as e:
+    print(f'[ERROR] Test 10 failed: {e}')
+    sys.exit(1)
 
   end = time.perf_counter_ns()
   elapsed = end - start
 
   print(
     f'Django ORM (async). Test 10. Filter, paginate & sort\n'
-    f'elapsed_ns={elapsed:.0f};'
+    f'elapsed_ns={elapsed}'
   )
 
 

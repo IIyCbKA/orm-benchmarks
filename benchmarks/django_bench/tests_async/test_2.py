@@ -2,6 +2,7 @@ from decimal import Decimal
 from functools import lru_cache
 import asyncio
 import os
+import sys
 import time
 
 import django
@@ -30,17 +31,14 @@ def get_curr_date():
 
 
 @sync_to_async
-def batch_create_sync():
-  try:
-    with transaction.atomic():
-      for i in range(COUNT):
-        Booking.objects.create(
-          book_ref=generate_book_ref(i),
-          book_date=get_curr_date(),
-          total_amount=generate_amount(i),
+def batch_create_sync() -> None:
+  with transaction.atomic():
+    for i in range(COUNT):
+      Booking.objects.create(
+        book_ref=generate_book_ref(i),
+        book_date=get_curr_date(),
+        total_amount=generate_amount(i),
       )
-  except Exception:
-    pass
 
 
 async def main() -> None:
@@ -48,15 +46,16 @@ async def main() -> None:
 
   try:
     await batch_create_sync()
-  except Exception:
-    pass
+  except Exception as e:
+    print(f'[ERROR] Test 2 failed: {e}')
+    sys.exit(1)
 
   end = time.perf_counter_ns()
   elapsed = end - start
 
   print(
     f'Django ORM (async). Test 2. Batch create. {COUNT} entities\n'
-    f'elapsed_ns={elapsed:.0f};'
+    f'elapsed_ns={elapsed}'
   )
 
 

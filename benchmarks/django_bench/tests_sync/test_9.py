@@ -1,3 +1,4 @@
+import sys
 import time
 
 import django
@@ -16,15 +17,16 @@ def main() -> None:
     _ = list(Ticket.objects.select_related('book_ref').filter(
       book_ref=generate_book_ref(1))
     )
-  except Exception:
-    pass
+  except Exception as e:
+    print(f'[ERROR] Test 9 failed: {e}')
+    sys.exit(1)
 
   end = time.perf_counter_ns()
   elapsed = end - start
 
   print(
     f'Django ORM (sync). Test 9. Nested find unique\n'
-    f'elapsed_ns={elapsed:.0f};'
+    f'elapsed_ns={elapsed}'
   )
 
 

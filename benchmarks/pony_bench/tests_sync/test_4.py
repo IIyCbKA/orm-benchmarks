@@ -4,6 +4,7 @@ from functools import lru_cache
 from pony.orm import db_session, commit, flush
 from core.models import Booking, Ticket
 import os
+import sys
 import time
 
 COUNT = int(os.environ.get('ITERATIONS', '2500'))
@@ -34,15 +35,14 @@ def get_curr_date():
 def main() -> None:
   start = time.perf_counter_ns()
 
-  with db_session():
-    for i in range(COUNT):
-      try:
+  try:
+    with db_session:
+      for i in range(COUNT):
         booking = Booking(
           book_ref=generate_book_ref(i),
           book_date=get_curr_date(),
           total_amount=generate_amount(i)
         )
-
         flush()
 
         _ = Ticket(
@@ -52,17 +52,17 @@ def main() -> None:
           passenger_name='Test',
           outbound=True
         )
-
         commit()
-      except Exception:
-        pass
+  except Exception as e:
+    print(f'[ERROR] Test 4 failed: {e}')
+    sys.exit(1)
 
   end = time.perf_counter_ns()
   elapsed = end - start
 
   print(
     f'PonyORM. Test 4. Nested create. {COUNT} entities\n'
-    f'elapsed_ns={elapsed:.0f};'
+    f'elapsed_ns={elapsed}'
   )
 
 

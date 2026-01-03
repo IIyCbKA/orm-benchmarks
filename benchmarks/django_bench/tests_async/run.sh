@@ -1,4 +1,5 @@
 #!/bin/sh
+set -e
 
 cd $(dirname $0)
 
@@ -7,7 +8,7 @@ export DJANGO_SETTINGS_MODULE="core.settings"
 # Add a root dir for correct imports
 export PYTHONPATH=..
 
-# db warm up
+# db warm-up
 python -m warmup
 
 # Test 1 -> Single create

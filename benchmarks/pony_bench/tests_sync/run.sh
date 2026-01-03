@@ -1,11 +1,12 @@
 #!/bin/sh
+set -e
 
 cd $(dirname $0)
 
 # Add a root dir for correct imports
 export PYTHONPATH=..
 
-# db warm up
+# db warm-up
 python -m warmup
 
 # Test 1 -> Single create

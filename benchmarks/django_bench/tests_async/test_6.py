@@ -1,4 +1,5 @@
 import asyncio
+import sys
 import time
 
 import django
@@ -11,15 +12,16 @@ async def main() -> None:
 
   try:
     _ = await Booking.objects.afirst()
-  except Exception:
-    pass
+  except Exception as e:
+    print(f'[ERROR] Test 6 failed: {e}')
+    sys.exit(1)
 
   end = time.perf_counter_ns()
   elapsed = end - start
 
   print(
     f'Django ORM (async). Test 6. Find first\n'
-    f'elapsed_ns={elapsed:.0f};'
+    f'elapsed_ns={elapsed}'
   )
 
 
