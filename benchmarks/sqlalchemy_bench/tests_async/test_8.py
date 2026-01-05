@@ -14,8 +14,7 @@ async def main() -> None:
 
     try:
         async with AsyncSessionLocal() as session:
-            stmt = select(Booking).where(Booking.book_ref == generate_book_ref(1)).limit(1)
-            booking = await session.scalar(stmt)
+            _ = await session.get(Booking, generate_book_ref(1))
     except Exception as e:
         print(e)
 

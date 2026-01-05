@@ -37,9 +37,9 @@ def warm_up() -> None:
         t.passenger_name = 'WarmUpdate'
         flush()
 
-        b.delete()
-        flush()
         t.delete()
+        flush()
+        b.delete()
         commit()
   except Exception as e:
     print(f'[ERROR] Warm-up failed: {e}')

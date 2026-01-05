@@ -90,7 +90,7 @@ ensure_golden_volume() {
     -e POSTGRES_USER="${POSTGRES_USER}" \
     -e POSTGRES_PASSWORD="${POSTGRES_PASSWORD}" \
     -v "$POSTGRES_GOLDEN_VOLUME":/var/lib/postgresql/data:rw \
-    iiycbka/sql-orm-benchmarks-db:latest >/dev/null
+    denistred/sql-orm-bench-db:latest >/dev/null
 
   echo ">>> Waiting for restore log line..."
 

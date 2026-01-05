@@ -18,7 +18,7 @@ class Booking(db.Entity):
   book_date = Required(datetime, sql_type='timestamptz')
   total_amount = Required(Decimal, precision=10, scale=2, optimistic=False)
 
-  tickets = Set('Ticket', reverse='book_ref')
+  tickets = Set('Ticket', reverse='book_ref', cascade_delete=False)
 
 
 class Ticket(db.Entity):
