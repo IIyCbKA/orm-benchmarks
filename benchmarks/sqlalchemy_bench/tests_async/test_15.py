@@ -1,15 +1,16 @@
 import asyncio
 import os
+import sys
 import time
 from sqlalchemy import delete, select
-from tests_async.db import AsyncSessionLocal
+from tests_async.db import AsyncSessionLocal, POOL_SIZE
 from core.models import Booking
 
 COUNT = int(os.environ.get('ITERATIONS', '2500'))
 
 
 def generate_book_ref(i: int) -> str:
-    return f'a{i:05d}'
+    return f'b{i:05d}'
 
 
 
@@ -23,10 +24,11 @@ async def delete_booking(i: int):
                 await session.delete(booking)
                 await session.commit()
         except Exception as e:
-            print(e)
+            print(f'[ERROR] Test 15 failed: {e}')
+            sys.exit(1)
 
 
-sem = asyncio.Semaphore(30)
+sem = asyncio.Semaphore(POOL_SIZE)
 
 async def sem_task(task):
     async with sem:

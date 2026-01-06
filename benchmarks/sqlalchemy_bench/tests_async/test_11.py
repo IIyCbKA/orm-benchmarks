@@ -1,4 +1,5 @@
 import asyncio
+import sys
 import time
 from datetime import datetime, UTC
 from decimal import Decimal
@@ -44,7 +45,8 @@ async def main() -> None:
     try:
         await update_booking_async()
     except Exception as e:
-        print(e)
+        print(f'[ERROR] Test 11 failed: {e}')
+        sys.exit(1)
 
     end = time.perf_counter_ns()
     elapsed = end - start

@@ -1,10 +1,11 @@
 import asyncio
+import sys
 import time
 from datetime import datetime, UTC
 from decimal import Decimal
 from functools import lru_cache
 from sqlalchemy import select, update
-from tests_async.db import AsyncSessionLocal
+from tests_async.db import AsyncSessionLocal, POOL_SIZE
 from core.models import Booking
 import os
 
@@ -35,9 +36,10 @@ async def update_booking(i: int):
                 booking.book_date = get_curr_date()
                 await session.commit()
         except Exception as e:
-            print(e)
+            print(f'[ERROR] Test 12 failed: {e}')
+            sys.exit(1)
 
-sem = asyncio.Semaphore(30)
+sem = asyncio.Semaphore(POOL_SIZE)
 
 async def sem_task(task):
     async with sem:
