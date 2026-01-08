@@ -1,0 +1,4 @@
+asyncpg==0.31.0
+psycopg[binary]==3.3.2
+python-dotenv==1.2.1
+typing_extensions==4.15.0
