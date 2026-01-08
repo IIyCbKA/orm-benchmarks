@@ -36,7 +36,7 @@ def main() -> None:
 
     print(
         f"SQLAlchemy (sync). Test 14. Transaction delete. {COUNT} entries\n"
-        f"elapsed_ns={elapsed:.0f};"
+        f"elapsed_ns={elapsed}"
     )
 
 

@@ -64,7 +64,7 @@ def main() -> None:
 
     print(
         f'SQLAlchemy (sync). Test 4. Nested create. {COUNT} entities\n'
-        f'elapsed_ns={elapsed:.0f};'
+        f'elapsed_ns={elapsed}'
     )
 
 

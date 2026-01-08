@@ -14,8 +14,6 @@ def generate_book_ref(i: int) -> str:
 
 
 def main() -> None:
-
-
     try:
         refs = [generate_book_ref(i) for i in range(COUNT)]
         with SessionLocal() as session:
@@ -46,7 +44,7 @@ def main() -> None:
 
     print(
         f"SQLAlchemy (sync). Test 13. Nested update. {COUNT} entries\n"
-        f"elapsed_ns={elapsed:.0f};"
+        f"elapsed_ns={elapsed}"
     )
 
 

@@ -41,7 +41,7 @@ def main() -> None:
 
     print(
         f'SQLAlchemy (sync). Test 10. Filter, paginate & sort\n'
-        f'elapsed_ns={elapsed:.0f};'
+        f'elapsed_ns={elapsed}'
     )
 
 

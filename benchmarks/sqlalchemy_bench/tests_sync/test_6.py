@@ -21,7 +21,7 @@ def main() -> None:
 
     print(
         f'SQLAlchemy (sync). Test 6. Find first\n'
-        f'elapsed_ns={elapsed:.0f};'
+        f'elapsed_ns={elapsed}'
     )
 
 

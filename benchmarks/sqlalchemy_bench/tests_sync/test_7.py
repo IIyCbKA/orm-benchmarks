@@ -36,7 +36,7 @@ def main() -> None:
 
     print(
         f'SQLAlchemy (sync). Test 7. Nested find first\n'
-        f'elapsed_ns={elapsed:.0f};'
+        f'elapsed_ns={elapsed}'
     )
 
 

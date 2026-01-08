@@ -50,7 +50,7 @@ def main() -> None:
 
     print(
         f'SQLAlchemy (sync). Test 1. Single create. {COUNT} entities\n'
-        f'elapsed_ns={elapsed:.0f};'
+        f'elapsed_ns={elapsed}'
     )
 
 
