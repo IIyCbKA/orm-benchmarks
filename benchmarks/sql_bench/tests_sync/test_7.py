@@ -29,7 +29,7 @@ def main() -> None:
 
     print(
         f'Pure SQL (psycopg3). Test 7. Nested find first\n'
-        f'elapsed_ns={elapsed};'
+        f'elapsed_ns={elapsed}'
     )
 
 

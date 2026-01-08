@@ -8,15 +8,19 @@ from tests_sync.db import get_connection
 
 COUNT = int(os.environ.get('ITERATIONS', '2500'))
 
+
 def generate_book_ref(i: int) -> str:
     return f'a{i:05d}'
 
+
 def get_new_amount(i: int) -> Decimal:
-    return Decimal(i + 100) / Decimal("10.00")
+    return Decimal(i) / Decimal("10.00")
+
 
 @lru_cache(1)
 def get_curr_date():
     return datetime.now(UTC)
+
 
 def main() -> None:
     start = time.perf_counter_ns()
@@ -42,8 +46,8 @@ def main() -> None:
     elapsed = time.perf_counter_ns() - start
 
     print(
-        f'Pure SQL (psycopg3). Test 11. Batch update. {COUNT} entries\n'
-        f'elapsed_ns={elapsed};'
+        f'Pure SQL (psycopg3). Test 11. Transaction update. {COUNT} entries\n'
+        f'elapsed_ns={elapsed}'
     )
 
 if __name__ == "__main__":

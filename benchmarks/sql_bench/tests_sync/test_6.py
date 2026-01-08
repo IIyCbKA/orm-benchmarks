@@ -9,7 +9,7 @@ def main() -> None:
         with get_connection() as conn:
             with conn.cursor() as cur:
                 cur.execute("SELECT * FROM bookings.bookings ORDER BY book_ref LIMIT 1")
-                first_booking = cur.fetchone()
+                _ = cur.fetchone()
     except Exception as e:
         print(f'[ERROR] Test 6 failed: {e}')
         sys.exit(1)
@@ -18,7 +18,7 @@ def main() -> None:
 
     print(
         f'Pure SQL (psycopg3). Test 6. Find first\n'
-        f'elapsed_ns={elapsed};'
+        f'elapsed_ns={elapsed}'
     )
 
 if __name__ == "__main__":

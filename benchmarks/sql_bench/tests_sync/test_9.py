@@ -4,7 +4,7 @@ from tests_sync.db import get_connection
 
 
 def generate_book_ref(i: int) -> str:
-    return f'a{i:05d}'
+    return f'd{i:05d}'
 
 
 def main() -> None:
@@ -35,7 +35,7 @@ def main() -> None:
 
     print(
         f'Pure SQL (psycopg3). Test 9. Nested find\n'
-        f'elapsed_ns={elapsed};'
+        f'elapsed_ns={elapsed}'
     )
 
 

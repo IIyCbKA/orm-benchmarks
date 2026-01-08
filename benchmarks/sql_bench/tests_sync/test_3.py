@@ -1,5 +1,6 @@
 from datetime import datetime, UTC
 from decimal import Decimal
+from functools import lru_cache
 import os
 import time
 import sys
@@ -16,25 +17,27 @@ def generate_amount(i: int) -> Decimal:
     return Decimal(i + 500) / Decimal("10.00")
 
 
+@lru_cache(1)
+def get_curr_date():
+  return datetime.now(UTC)
+
+
 def main() -> None:
     start = time.perf_counter_ns()
 
-    curr_date = datetime.now(UTC)
-
-    rows = [
-        (generate_book_ref(i), curr_date, generate_amount(i))
-        for i in range(COUNT)
-    ]
-    values_sql = sql.SQL(", ").join(
-        sql.SQL("(%s, %s, %s)") for _ in rows
-    )
-    query = sql.SQL("""
-        INSERT INTO bookings.bookings (book_ref, book_date, total_amount)
-        VALUES {}
-    """).format(values_sql)
-    connection = get_connection()
     try:
-        with connection as conn:
+        rows = [
+            (generate_book_ref(i), get_curr_date(), generate_amount(i))
+            for i in range(COUNT)
+        ]
+        values_sql = sql.SQL(", ").join(
+            sql.SQL("(%s, %s, %s)") for _ in rows
+        )
+        query = sql.SQL("""
+            INSERT INTO bookings.bookings (book_ref, book_date, total_amount)
+            VALUES {}
+        """).format(values_sql)
+        with get_connection() as conn:
             with conn.cursor() as cur:
                 cur.execute(query, [v for row in rows for v in row])
             conn.commit()
@@ -46,7 +49,7 @@ def main() -> None:
 
     print(
         f'Pure SQL (psycopg3). Test 3. Bulk create. {COUNT} entities\n'
-        f'elapsed_ns={elapsed};'
+        f'elapsed_ns={elapsed}'
     )
 
 

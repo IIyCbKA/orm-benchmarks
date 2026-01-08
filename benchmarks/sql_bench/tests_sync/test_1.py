@@ -1,5 +1,6 @@
 from datetime import datetime, UTC
 from decimal import Decimal
+from functools import lru_cache
 import os
 import time
 import sys
@@ -16,34 +17,39 @@ def generate_amount(i: int) -> Decimal:
     return Decimal(i + 500) / Decimal("10.00")
 
 
+@lru_cache(1)
+def get_curr_date():
+  return datetime.now(UTC)
+
+
 def main() -> None:
     start = time.perf_counter_ns()
-    conn = get_connection()
-    with conn.cursor() as cur:
-        for i in range(COUNT):
-            try:
-                cur.execute(
-                    """
-                    INSERT INTO bookings.bookings (book_ref, book_date, total_amount)
-                    VALUES (%s, %s, %s)
-                    """,
-                    (
-                        generate_book_ref(i),
-                        datetime.now(UTC),
-                        generate_amount(i),
-                    ),
-                )
-                conn.commit()
-            except Exception as e:
-                print(f'[ERROR] Test 1 failed: {e}')
-                sys.exit(1)
-    conn.close()
+
+    try:
+        with get_connection() as conn:
+            with conn.cursor() as cur:
+                for i in range(COUNT):
+                    cur.execute(
+                        """
+                        INSERT INTO bookings.bookings (book_ref, book_date, total_amount)
+                        VALUES (%s, %s, %s)
+                        """,
+                        (
+                            generate_book_ref(i),
+                            get_curr_date(),
+                            generate_amount(i),
+                        ),
+                    )
+                    conn.commit()
+    except Exception as e:
+        print(f'[ERROR] Test 1 failed: {e}')
+        sys.exit(1)
 
     elapsed = time.perf_counter_ns() - start
 
     print(
         f'Pure SQL (psycopg3). Test 1. Single create. {COUNT} entities\n'
-        f'elapsed_ns={elapsed};'
+        f'elapsed_ns={elapsed}'
     )
 
 

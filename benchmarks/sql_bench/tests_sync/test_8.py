@@ -24,7 +24,7 @@ def main() -> None:
 
     print(
         f'Pure SQL (psycopg3). Test 8. Find unique\n'
-        f'elapsed_ns={elapsed};'
+        f'elapsed_ns={elapsed}'
     )
 
 if __name__ == "__main__":

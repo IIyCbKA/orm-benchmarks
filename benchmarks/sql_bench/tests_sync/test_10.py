@@ -29,7 +29,7 @@ def main() -> None:
                     """,
                     (amount_low, amount_high, date_from, LIMIT, OFFSET)
                 )
-                rows = cur.fetchall()
+                _ = cur.fetchall()
     except Exception as e:
         print(f'[ERROR] Test 10 failed: {e}')
         sys.exit(1)
@@ -38,7 +38,7 @@ def main() -> None:
 
     print(
         f'Pure SQL (psycopg3). Test 10. Filter, paginate & sort\n'
-        f'elapsed_ns={elapsed};'
+        f'elapsed_ns={elapsed}'
     )
 
 if __name__ == "__main__":

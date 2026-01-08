@@ -1,5 +1,6 @@
 from datetime import datetime, UTC
 from decimal import Decimal
+from functools import lru_cache
 import os
 import time
 import sys
@@ -24,12 +25,16 @@ def generate_amount(i: int) -> Decimal:
     return Decimal(i + 500) / Decimal("10.00")
 
 
+@lru_cache(1)
+def get_curr_date():
+  return datetime.now(UTC)
+
+
 def main() -> None:
     start = time.perf_counter_ns()
-    curr_date = datetime.now(UTC)
-    connection = get_connection()
+
     try:
-        with connection as conn:
+        with get_connection() as conn:
             with conn.cursor() as cur:
                 for i in range(COUNT):
                     cur.execute(
@@ -38,7 +43,7 @@ def main() -> None:
                         VALUES (%s, %s, %s)
                         RETURNING book_ref
                         """,
-                        (generate_book_ref(i), curr_date, generate_amount(i))
+                        (generate_book_ref(i), get_curr_date(), generate_amount(i))
                     )
                     booking_id = cur.fetchone()[0]
 
@@ -64,7 +69,7 @@ def main() -> None:
     elapsed = time.perf_counter_ns() - start
     print(
         f'Pure SQL (psycopg3). Test 4. Nested create. {COUNT} entities\n'
-        f'elapsed_ns={elapsed};'
+        f'elapsed_ns={elapsed}'
     )
 
 

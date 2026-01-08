@@ -3,16 +3,23 @@ ORM & SQL Performance Bench [![GitHub license](https://img.shields.io/badge/lice
 
 A reproducible benchmarking project to compare raw SQL and popular Python ORMs on PostgreSQL.
 
-The primary database schema used in this project is the demonstration schema 
-provided by Postgres Professional: https://postgrespro.ru/education/demodb. 
-For reproducibility, each benchmark run is initialized from the one-year dump 
-`demo-20250901-1y.sql.gz`, available at 
-https://edu.postgrespro.ru/demo-20250901-1y.sql.gz. The dump is restored 
-immediately prior to testing so that every run starts from the same dataset. 
+The primary database schema used in this project is based on the demonstration 
+schema provided by Postgres Professional: https://postgrespro.ru/education/demodb. 
+For reproducibility, each benchmark run is initialized from a trimmed one-year 
+dump derived from `demo-20250901-1y.sql.gz` (original dump available at 
+https://edu.postgrespro.ru/demo-20250901-1y.sql.gz).
 
-For stability the dump has been incorporated into the database image and 
-published on Docker Hub at: 
-https://hub.docker.com/repository/docker/iiycbka/sql-orm-benchmarks-db.
+To reduce dataset size and focus tests on the relevant domain, the trimmed dump 
+included with this project contains only two tables: **Bookings** and 
+**Tickets**. The trimmed dump is restored immediately prior to testing so that 
+every run starts from the same reduced dataset. After trimming, the dump is 
+compacted and planner statistics are refreshed by running `VACUUM FULL ANALYZE` 
+so that query plans are up-to-date and each benchmark starts from a clean, 
+consistent state.
+
+For convenience the trimmed dump has been incorporated into the database image 
+and published on Docker Hub at:
+https://hub.docker.com/r/denistred/sql-orm-bench-db.
 
 ---
 ### Server specifications:
@@ -55,11 +62,12 @@ name from this list for `./start.sh`):
 - django
 - pony
 - sqlalchemy
+- sql
 
 List of modes for solutions (use the mode name from this list for `./start.sh`, 
 with selected solution. Default is sync):
-- sync: django | pony | sqlalchemy
-- async: django | sqlalchemy
+- sync: django | pony | sqlalchemy | sql
+- async: django | sqlalchemy | sql
 
 **IMPORTANT NOTE:** On each fresh run of `docker-compose` (this is done 
 in `stop.sh`) you must clear all runtime volumes from previous runs.
