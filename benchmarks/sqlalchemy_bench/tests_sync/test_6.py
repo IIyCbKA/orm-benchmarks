@@ -12,10 +12,10 @@ SELECT_REPEATS = int(os.environ.get('SELECT_REPEATS', '75'))
 def select_iteration() -> int:
     start = time.perf_counter_ns()
 
-    session = SessionLocal()
-    _ = session.scalars(
-        select(Booking).order_by(asc(Booking.book_ref)).limit(1)
-    ).first()
+    with SessionLocal() as session:
+        _ = session.scalars(
+            select(Booking).order_by(asc(Booking.book_ref)).limit(1)
+        ).first()
 
     end = time.perf_counter_ns()
     return end - start

@@ -34,26 +34,27 @@ def get_curr_date():
 
 def main() -> None:
     start = time.perf_counter_ns()
-    session = SessionLocal()
-    try:
-        for i in range(COUNT):
-            book_ref = generate_book_ref(i)
-            with session.begin():
-                session.add(Booking(
-                    book_ref=book_ref,
-                    book_date=get_curr_date(),
-                    total_amount=generate_amount(i),
-                ))
-                session.flush()
 
-                session.add(Ticket(
-                    ticket_no=generate_ticket_no(i),
-                    book_ref=book_ref,
-                    passenger_id=generate_passenger_id(i),
-                    passenger_name="Test",
-                    outbound=True,
-                ))
-                session.flush()
+    try:
+        with SessionLocal() as session:
+            for i in range(COUNT):
+                book_ref = generate_book_ref(i)
+                with session.begin():
+                    session.add(Booking(
+                        book_ref=book_ref,
+                        book_date=get_curr_date(),
+                        total_amount=generate_amount(i),
+                    ))
+                    session.flush()
+
+                    session.add(Ticket(
+                        ticket_no=generate_ticket_no(i),
+                        book_ref=book_ref,
+                        passenger_id=generate_passenger_id(i),
+                        passenger_name="Test",
+                        outbound=True,
+                    ))
+                    session.flush()
     except Exception as e:
         print(f'[ERROR] Test 4 failed: {e}')
         sys.exit(1)

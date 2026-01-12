@@ -18,22 +18,22 @@ def generate_book_ref(i: int) -> str:
 def select_iteration() -> int:
     start = time.perf_counter_ns()
 
-    session = SessionLocal()
-    stmt = (
-        select(
-            Ticket.ticket_no,
-            Ticket.book_ref,
-            Ticket.passenger_id,
-            Ticket.passenger_name,
-            Ticket.outbound,
-            Booking.book_ref,
-            Booking.book_date,
-            Booking.total_amount,
+    with SessionLocal() as session:
+        stmt = (
+            select(
+                Ticket.ticket_no,
+                Ticket.book_ref,
+                Ticket.passenger_id,
+                Ticket.passenger_name,
+                Ticket.outbound,
+                Booking.book_ref,
+                Booking.book_date,
+                Booking.total_amount,
+            )
+            .join(Booking, Ticket.book_ref == Booking.book_ref)
+            .where(Ticket.book_ref == generate_book_ref(1))
         )
-        .join(Booking, Ticket.book_ref == Booking.book_ref)
-        .where(Ticket.book_ref == generate_book_ref(1))
-    )
-    _ = session.scalars(stmt).all()
+        _ = session.scalars(stmt).all()
 
     end = time.perf_counter_ns()
     return end - start
@@ -41,7 +41,6 @@ def select_iteration() -> int:
 
 def main() -> None:
     results: list[int] = []
-
 
     try:
         for _ in range(SELECT_REPEATS):

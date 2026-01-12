@@ -20,14 +20,13 @@ def main() -> None:
         print(f'[ERROR] Test 16 failed (data preparation): {e}')
         sys.exit(1)
 
-
     start = time.perf_counter_ns()
-    session = SessionLocal()
 
     try:
-        statement = delete(Booking).where(Booking.book_ref.in_(refs))
-        _ = session.execute(statement)
-        session.commit()
+        with SessionLocal() as session:
+            statement = delete(Booking).where(Booking.book_ref.in_(refs))
+            _ = session.execute(statement)
+            session.commit()
     except Exception as e:
         print(f'[ERROR] Test 16 failed (delete phase): {e}')
         sys.exit(1)

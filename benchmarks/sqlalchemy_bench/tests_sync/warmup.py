@@ -11,40 +11,39 @@ COUNT = int(os.environ.get("WARMUP_ITERATIONS", '20'))
 
 def warmup() -> None:
     try:
-        session = SessionLocal()
-        for i in range(COUNT):
-            with session.begin():
-                b = Booking(
-                    book_ref=f'warm{i:02d}',
-                    book_date=datetime.now(UTC),
-                    total_amount=Decimal('5.00')
-                )
-                session.add(b)
-                session.flush()
-                t = Ticket(
-                    ticket_no=f'warm{i:09d}',
-                    book_ref=b.book_ref,
-                    passenger_id=f'warm{i:05d}',
-                    passenger_name='Warm',
-                    outbound=True
-                )
-                session.add(t)
-                session.flush()
+        with SessionLocal() as session:
+            for i in range(COUNT):
+                with session.begin():
+                    b = Booking(
+                        book_ref=f'warm{i:02d}',
+                        book_date=datetime.now(UTC),
+                        total_amount=Decimal('5.00')
+                    )
+                    session.add(b)
+                    session.flush()
+                    t = Ticket(
+                        ticket_no=f'warm{i:09d}',
+                        book_ref=b.book_ref,
+                        passenger_id=f'warm{i:05d}',
+                        passenger_name='Warm',
+                        outbound=True
+                    )
+                    session.add(t)
+                    session.flush()
 
-                _ = session.scalar(
-                    select(Booking).where(Booking.book_ref == f'warm{i:02d}')
-                )
-                __ = session.scalar(
-                    select(Ticket).where(Ticket.ticket_no == f'warm{i:09d}')
-                )
+                    _ = session.scalar(
+                        select(Booking).where(Booking.book_ref == f'warm{i:02d}')
+                    )
+                    __ = session.scalar(
+                        select(Ticket).where(Ticket.ticket_no == f'warm{i:09d}')
+                    )
 
-                b.total_amount = Decimal('2.00')
-                t.passenger_name = 'WarmUpdate'
+                    b.total_amount = Decimal('2.00')
+                    t.passenger_name = 'WarmUpdate'
 
-                session.delete(t)
-                session.flush()
-                session.delete(b)
-
+                    session.delete(t)
+                    session.flush()
+                    session.delete(b)
     except Exception as e:
         print(e)
 

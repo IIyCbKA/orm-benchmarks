@@ -14,35 +14,36 @@ def generate_book_ref(i: int) -> str:
 
 
 def main() -> None:
-    session = SessionLocal()
-    try:
-        refs = [generate_book_ref(i) for i in range(COUNT)]
-        statement = (select(Booking)
-                     .options(selectinload(Booking.tickets))
-                     .where(Booking.book_ref.in_(refs)))
-        bookings = session.execute(statement).scalars().all()
-    except Exception as e:
-        print(f'[ERROR] Test 17 failed (data preparation): {e}')
-        sys.exit(1)
+    with SessionLocal() as session:
+        try:
+            refs = [generate_book_ref(i) for i in range(COUNT)]
+            statement = (select(Booking)
+                         .options(selectinload(Booking.tickets))
+                         .where(Booking.book_ref.in_(refs)))
+            bookings = session.execute(statement).scalars().all()
+            session.rollback()
+        except Exception as e:
+            print(f'[ERROR] Test 17 failed (data preparation): {e}')
+            sys.exit(1)
 
-    start = time.perf_counter_ns()
+        start = time.perf_counter_ns()
 
-    try:
-        for booking in bookings:
-            with session.begin():
-                for ticket in booking.tickets:
-                    session.delete(ticket)
-                session.delete(booking)
-    except Exception as e:
-        print(f'[ERROR] Test 17 failed (delete phase): {e}')
-        sys.exit(1)
+        try:
+            for booking in bookings:
+                with session.begin():
+                    for ticket in booking.tickets:
+                        session.delete(ticket)
+                    session.delete(booking)
+        except Exception as e:
+            print(f'[ERROR] Test 17 failed (delete phase): {e}')
+            sys.exit(1)
 
-    elapsed = time.perf_counter_ns() - start
+        elapsed = time.perf_counter_ns() - start
 
-    print(
-        f'SQLAlchemy (sync). Test 17. Nested delete. {COUNT} entries\n'
-        f'elapsed_ns={elapsed}'
-    )
+        print(
+            f'SQLAlchemy (sync). Test 17. Nested delete. {COUNT} entries\n'
+            f'elapsed_ns={elapsed}'
+        )
 
 
 if __name__ == '__main__':

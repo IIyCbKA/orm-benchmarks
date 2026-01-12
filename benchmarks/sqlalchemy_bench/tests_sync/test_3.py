@@ -37,8 +37,8 @@ def main() -> None:
             for i in range(COUNT)
         ]
 
-        session = SessionLocal()
-        session.bulk_save_objects(objs)
+        with SessionLocal() as session:
+            session.bulk_save_objects(objs)
     except Exception as e:
         print(f'[ERROR] Test 3 failed: {e}')
         sys.exit(1)

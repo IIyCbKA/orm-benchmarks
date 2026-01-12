@@ -12,8 +12,8 @@ SELECT_REPEATS = int(os.environ.get('SELECT_REPEATS', '75'))
 def select_iteration() -> int:
     start = time.perf_counter_ns()
 
-    session = SessionLocal()
-    _ = session.scalars(select(Booking)).all()
+    with SessionLocal() as session:
+        _ = session.scalars(select(Booking)).all()
 
     end = time.perf_counter_ns()
     return end - start

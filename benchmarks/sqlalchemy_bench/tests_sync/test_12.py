@@ -26,34 +26,35 @@ def get_curr_date():
 
 
 def main() -> None:
-    session = SessionLocal()
-    try:
-        refs = [generate_book_ref(i) for i in range(COUNT)]
-        statement = select(Booking).where(Booking.book_ref.in_(refs))
-        bookings = session.execute(statement).scalars().all()
-    except Exception as e:
-        print(f'[ERROR] Test 12 failed (data preparation): {e}')
-        sys.exit(1)
+    with SessionLocal() as session:
+        try:
+            refs = [generate_book_ref(i) for i in range(COUNT)]
+            statement = select(Booking).where(Booking.book_ref.in_(refs))
+            bookings = session.execute(statement).scalars().all()
+            session.rollback()
+        except Exception as e:
+            print(f'[ERROR] Test 12 failed (data preparation): {e}')
+            sys.exit(1)
 
-    start = time.perf_counter_ns()
+        start = time.perf_counter_ns()
 
-    try:
-        for booking in bookings:
-            booking.total_amount = get_new_amount(booking.total_amount)
-            booking.book_date = get_curr_date()
-            session.commit()
+        try:
+            for booking in bookings:
+                booking.total_amount = get_new_amount(booking.total_amount)
+                booking.book_date = get_curr_date()
+                session.commit()
 
-    except Exception as e:
-        print(f'[ERROR] Test 12 failed (update phase): {e}')
-        sys.exit(1)
+        except Exception as e:
+            print(f'[ERROR] Test 12 failed (update phase): {e}')
+            sys.exit(1)
 
-    end = time.perf_counter_ns()
-    elapsed = end - start
+        end = time.perf_counter_ns()
+        elapsed = end - start
 
-    print(
-        f'SQLAlchemy (sync). Test 12. Single update. {COUNT} entries\n'
-        f'elapsed_ns={elapsed}'
-    )
+        print(
+            f'SQLAlchemy (sync). Test 12. Single update. {COUNT} entries\n'
+            f'elapsed_ns={elapsed}'
+        )
 
 
 if __name__ == '__main__':

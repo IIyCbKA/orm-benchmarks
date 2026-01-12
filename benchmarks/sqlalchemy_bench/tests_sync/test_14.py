@@ -15,33 +15,34 @@ def generate_book_ref(i: int) -> str:
 
 
 def main() -> None:
-    session = SessionLocal()
-    try:
-        refs = [generate_book_ref(i) for i in range(COUNT)]
-        statement = select(Booking).where(Booking.book_ref.in_(refs))
-        bookings = session.execute(statement).scalars().all()
-    except Exception as e:
-        print(f'[ERROR] Test 14 failed (data preparation): {e}')
-        sys.exit(1)
+    with SessionLocal() as session:
+        try:
+            refs = [generate_book_ref(i) for i in range(COUNT)]
+            statement = select(Booking).where(Booking.book_ref.in_(refs))
+            bookings = session.execute(statement).scalars().all()
+            session.rollback()
+        except Exception as e:
+            print(f'[ERROR] Test 14 failed (data preparation): {e}')
+            sys.exit(1)
 
-    start = time.perf_counter_ns()
+        start = time.perf_counter_ns()
 
-    try:
-        with session.begin():
-            for booking in bookings:
-                session.delete(booking)
-                session.flush()
-    except Exception as e:
-        print(f'[ERROR] Test 14 failed (delete phase): {e}')
-        sys.exit(1)
+        try:
+            with session.begin():
+                for booking in bookings:
+                    session.delete(booking)
+                    session.flush()
+        except Exception as e:
+            print(f'[ERROR] Test 14 failed (delete phase): {e}')
+            sys.exit(1)
 
-    end = time.perf_counter_ns()
-    elapsed = end - start
+        end = time.perf_counter_ns()
+        elapsed = end - start
 
-    print(
-        f"SQLAlchemy (sync). Test 14. Transaction delete. {COUNT} entries\n"
-        f"elapsed_ns={elapsed}"
-    )
+        print(
+            f"SQLAlchemy (sync). Test 14. Transaction delete. {COUNT} entries\n"
+            f"elapsed_ns={elapsed}"
+        )
 
 
 if __name__ == "__main__":

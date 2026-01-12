@@ -17,8 +17,8 @@ def generate_book_ref(i: int) -> str:
 def select_iteration() -> int:
     start = time.perf_counter_ns()
 
-    session: Session = SessionLocal()
-    _ = session.get(Booking, generate_book_ref(1))
+    with SessionLocal() as session:
+        _ = session.get(Booking, generate_book_ref(1))
 
     end = time.perf_counter_ns()
     return end - start

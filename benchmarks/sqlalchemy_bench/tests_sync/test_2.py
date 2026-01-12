@@ -26,16 +26,17 @@ def get_curr_date():
 
 def main() -> None:
     start = time.perf_counter_ns()
-    session = SessionLocal()
+
     try:
-        with session.begin():
-            for i in range(COUNT):
-                session.add(Booking(
-                    book_ref=generate_book_ref(i),
-                    book_date=get_curr_date(),
-                    total_amount=generate_amount(i),
-                ))
-                session.flush()
+        with SessionLocal() as session:
+            with session.begin():
+                for i in range(COUNT):
+                    session.add(Booking(
+                        book_ref=generate_book_ref(i),
+                        book_date=get_curr_date(),
+                        total_amount=generate_amount(i),
+                    ))
+                    session.flush()
     except Exception as e:
         print(f'[ERROR] Test 2 failed: {e}')
         sys.exit(1)

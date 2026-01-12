@@ -23,19 +23,18 @@ AMOUNT_HIGH = Decimal('500.00')
 def select_iteration() -> int:
     start = time.perf_counter_ns()
 
-    session = SessionLocal()
-    stmt = (
-        select(Booking)
-        .where(
-            Booking.total_amount.between(AMOUNT_LOW, AMOUNT_HIGH),
-            Booking.book_date >= DATE_FROM
+    with SessionLocal() as session:
+        stmt = (
+            select(Booking)
+            .where(
+                Booking.total_amount.between(AMOUNT_LOW, AMOUNT_HIGH),
+                Booking.book_date >= DATE_FROM
+            )
+            .order_by(asc(Booking.total_amount))
+            .limit(LIMIT)
+            .offset(OFFSET)
         )
-        .order_by(asc(Booking.total_amount))
-        .limit(LIMIT)
-        .offset(OFFSET)
-    )
-
-    _ = session.scalars(stmt).all()
+        _ = session.scalars(stmt).all()
 
     end = time.perf_counter_ns()
     return end - start

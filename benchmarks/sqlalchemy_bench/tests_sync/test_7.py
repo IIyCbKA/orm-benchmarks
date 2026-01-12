@@ -13,23 +13,23 @@ SELECT_REPEATS = int(os.environ.get('SELECT_REPEATS', '75'))
 def select_iteration() -> int:
     start = time.perf_counter_ns()
 
-    session = SessionLocal()
-    stmt = (
-        select(
-            Ticket.ticket_no,
-            Ticket.book_ref,
-            Ticket.passenger_id,
-            Ticket.passenger_name,
-            Ticket.outbound,
-            Booking.book_ref,
-            Booking.book_date,
-            Booking.total_amount,
+    with SessionLocal() as session:
+        stmt = (
+            select(
+                Ticket.ticket_no,
+                Ticket.book_ref,
+                Ticket.passenger_id,
+                Ticket.passenger_name,
+                Ticket.outbound,
+                Booking.book_ref,
+                Booking.book_date,
+                Booking.total_amount,
+            )
+            .join(Booking, Ticket.book_ref == Booking.book_ref)
+            .order_by(Ticket.ticket_no)
+            .limit(1)
         )
-        .join(Booking, Ticket.book_ref == Booking.book_ref)
-        .order_by(Ticket.ticket_no)
-        .limit(1)
-    )
-    _ = session.execute(stmt).first()
+        _ = session.execute(stmt).first()
 
     end = time.perf_counter_ns()
     return end - start
