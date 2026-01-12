@@ -1,6 +1,7 @@
 from datetime import timedelta
 from decimal import Decimal
 import os
+import statistics
 import sys
 import time
 
@@ -12,27 +13,38 @@ from django.utils import timezone
 
 LIMIT = int(os.environ.get('LIMIT', '250'))
 OFFSET = int(os.environ.get('OFFSET', '500'))
+SELECT_REPEATS = int(os.environ.get('SELECT_REPEATS', '75'))
+
+NOW = timezone.now()
+DATE_FROM = NOW - timedelta(days=30)
+AMOUNT_LOW = Decimal('50.00')
+AMOUNT_HIGH = Decimal('500.00')
+
+
+def select_iteration() -> int:
+  start = time.perf_counter_ns()
+
+  _ = list(Booking.objects.filter(
+    total_amount__gte=AMOUNT_LOW,
+    total_amount__lte=AMOUNT_HIGH,
+    book_date__gte=DATE_FROM
+  ).order_by('total_amount')[OFFSET:OFFSET + LIMIT])
+
+  end = time.perf_counter_ns()
+  return end - start
 
 
 def main() -> None:
-  now = timezone.now()
-  date_from = now - timedelta(days=30)
-  amount_low = Decimal('50.00')
-  amount_high = Decimal('500.00')
-  start = time.perf_counter_ns()
+  results: list[int] = []
 
   try:
-    _ = list(Booking.objects.filter(
-      total_amount__gte=amount_low,
-      total_amount__lte=amount_high,
-      book_date__gte=date_from
-    ).order_by('total_amount')[OFFSET:OFFSET + LIMIT])
+    for _ in range(SELECT_REPEATS):
+      results.append(select_iteration())
   except Exception as e:
     print(f'[ERROR] Test 10 failed: {e}')
     sys.exit(1)
 
-  end = time.perf_counter_ns()
-  elapsed = end - start
+  elapsed = statistics.median(results)
 
   print(
     f'Django ORM (sync). Test 10. Filter, paginate & sort\n'

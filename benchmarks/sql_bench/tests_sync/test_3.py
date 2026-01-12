@@ -41,7 +41,6 @@ def main() -> None:
         """).format(values_sql)
         with conn.cursor() as cur:
             cur.execute(query, [v for row in rows for v in row])
-        conn.commit()
     except Exception as e:
         print(f'[ERROR] Test 3 failed: {e}')
         sys.exit(1)

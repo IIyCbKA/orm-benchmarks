@@ -30,10 +30,11 @@ def main() -> None:
             session.delete(booking)
             session.commit()
     except Exception as e:
-        print(f'[ERROR] Test 15 failed: {e}')
+        print(f'[ERROR] Test 15 failed (delete phase): {e}')
         sys.exit(1)
 
-    elapsed = time.perf_counter_ns() - start
+    end = time.perf_counter_ns()
+    elapsed = end - start
 
     print(
         f'SQLAlchemy (sync). Test 15. Single delete. {COUNT} entries\n'

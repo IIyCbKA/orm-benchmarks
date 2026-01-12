@@ -33,7 +33,6 @@ def main() -> None:
                     INSERT INTO bookings.bookings (book_ref, book_date, total_amount)
                     VALUES (%s, %s, %s)
                 """, (generate_book_ref(i), get_curr_date(), generate_amount(i)))
-                conn.commit()
     except Exception as e:
         print(f'[ERROR] Test 1 failed: {e}')
         sys.exit(1)

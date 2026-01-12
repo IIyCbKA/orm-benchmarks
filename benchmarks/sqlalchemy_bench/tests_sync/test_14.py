@@ -27,12 +27,12 @@ def main() -> None:
     start = time.perf_counter_ns()
 
     try:
-        for booking in bookings:
-            session.delete(booking)
-            session.flush()
-        session.commit()
+        with session.begin():
+            for booking in bookings:
+                session.delete(booking)
+                session.flush()
     except Exception as e:
-        print(f'[ERROR] Test 14 failed: {e}')
+        print(f'[ERROR] Test 14 failed (delete phase): {e}')
         sys.exit(1)
 
     end = time.perf_counter_ns()

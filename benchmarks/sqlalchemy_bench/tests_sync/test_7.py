@@ -1,38 +1,51 @@
-import sys
-import time
 from sqlalchemy import select
 from sqlalchemy.orm import joinedload
 from tests_sync.db import SessionLocal
 from core.models import Booking, Ticket
+import os
+import statistics
+import sys
+import time
+
+SELECT_REPEATS = int(os.environ.get('SELECT_REPEATS', '75'))
 
 
-def main() -> None:
+def select_iteration() -> int:
     start = time.perf_counter_ns()
 
     session = SessionLocal()
-    try:
-        stmt = (
-            select(
-                Ticket.ticket_no,
-                Ticket.book_ref,
-                Ticket.passenger_id,
-                Ticket.passenger_name,
-                Ticket.outbound,
-                Booking.book_ref,
-                Booking.book_date,
-                Booking.total_amount,
-            )
-            .join(Booking, Ticket.book_ref == Booking.book_ref)
-            .order_by(Ticket.ticket_no)
-            .limit(1)
+    stmt = (
+        select(
+            Ticket.ticket_no,
+            Ticket.book_ref,
+            Ticket.passenger_id,
+            Ticket.passenger_name,
+            Ticket.outbound,
+            Booking.book_ref,
+            Booking.book_date,
+            Booking.total_amount,
         )
-        ticket = session.execute(stmt).first()
+        .join(Booking, Ticket.book_ref == Booking.book_ref)
+        .order_by(Ticket.ticket_no)
+        .limit(1)
+    )
+    _ = session.execute(stmt).first()
 
+    end = time.perf_counter_ns()
+    return end - start
+
+
+def main() -> None:
+    results: list[int] = []
+
+    try:
+        for _ in range(SELECT_REPEATS):
+            results.append(select_iteration())
     except Exception as e:
         print(f'[ERROR] Test 7 failed: {e}')
         sys.exit(1)
 
-    elapsed = time.perf_counter_ns() - start
+    elapsed = statistics.median(results)
 
     print(
         f'SQLAlchemy (sync). Test 7. Nested find first\n'

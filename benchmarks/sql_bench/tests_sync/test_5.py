@@ -1,30 +1,44 @@
-import time
-import sys
 from tests_sync.db import conn
+import os
+import statistics
+import sys
+import time
 
-def main() -> None:
+SELECT_REPEATS = int(os.environ.get('SELECT_REPEATS', '75'))
+
+
+def select_iteration() -> int:
     start = time.perf_counter_ns()
 
+    with conn.cursor() as cur:
+        _ = cur.execute("""
+            SELECT bookings.book_ref,
+                   bookings.book_date,
+                   bookings.total_amount
+            FROM bookings
+        """).fetchall()
+
+    end = time.perf_counter_ns()
+    return end - start
+
+
+def main() -> None:
+    results: list[int] = []
+
     try:
-        with conn.cursor() as cur:
-            _ = cur.execute("""
-                SELECT 
-                    bookings.book_ref, 
-                    bookings.book_date, 
-                    bookings.total_amount 
-                FROM bookings
-            """).fetchall()
+        for _ in range(SELECT_REPEATS):
+            results.append(select_iteration())
     except Exception as e:
         print(f'[ERROR] Test 5 failed: {e}')
         sys.exit(1)
 
-    end = time.perf_counter_ns()
-    elapsed = end - start
+    elapsed = statistics.median(results)
 
     print(
         f'Pure SQL (psycopg3). Test 5. Find all\n'
         f'elapsed_ns={elapsed}'
     )
+
 
 if __name__ == '__main__':
     main()

@@ -30,14 +30,14 @@ def main() -> None:
 
     try:
         for booking in bookings:
-            booking.total_amount += Decimal('10.00')
-            session.flush()
-            for ticket in booking.tickets:
-                ticket.passenger_name = 'Nested update'
+            with session.begin():
+                booking.total_amount += Decimal('10.00')
                 session.flush()
-            session.commit()
+                for ticket in booking.tickets:
+                    ticket.passenger_name = 'Nested update'
+                    session.flush()
     except Exception as e:
-        print(f'[ERROR] Test 13 failed: {e}')
+        print(f'[ERROR] Test 13 failed (delete phase): {e}')
         sys.exit(1)
 
     end = time.perf_counter_ns()

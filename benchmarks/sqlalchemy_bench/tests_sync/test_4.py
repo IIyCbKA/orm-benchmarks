@@ -37,30 +37,29 @@ def main() -> None:
     session = SessionLocal()
     try:
         for i in range(COUNT):
+            book_ref = generate_book_ref(i)
             with session.begin():
-                booking = Booking(
-                    book_ref=generate_book_ref(i),
+                session.add(booking = Booking(
+                    book_ref=book_ref,
                     book_date=get_curr_date(),
                     total_amount=generate_amount(i),
-                )
-                session.add(booking)
+                ))
                 session.flush()
 
-                ticket = Ticket(
+                session.add(Ticket(
                     ticket_no=generate_ticket_no(i),
-                    book_ref=booking.book_ref,
+                    book_ref=book_ref,
                     passenger_id=generate_passenger_id(i),
                     passenger_name="Test",
                     outbound=True,
-                )
-                session.add(ticket)
+                ))
                 session.flush()
-
     except Exception as e:
         print(f'[ERROR] Test 4 failed: {e}')
         sys.exit(1)
 
-    elapsed = time.perf_counter_ns() - start
+    end = time.perf_counter_ns()
+    elapsed = end - start
 
     print(
         f'SQLAlchemy (sync). Test 4. Nested create. {COUNT} entities\n'

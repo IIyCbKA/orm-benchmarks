@@ -1,23 +1,37 @@
-import sys
-import time
 from sqlalchemy import select, asc
 from tests_sync.db import SessionLocal
 from core.models import Booking
+import os
+import statistics
+import sys
+import time
+
+SELECT_REPEATS = int(os.environ.get('SELECT_REPEATS', '75'))
 
 
-def main() -> None:
+def select_iteration() -> int:
     start = time.perf_counter_ns()
 
     session = SessionLocal()
+    _ = session.scalars(
+        select(Booking).order_by(asc(Booking.book_ref)).limit(1)
+    ).first()
+
+    end = time.perf_counter_ns()
+    return end - start
+
+
+def main() -> None:
+    results: list[int] = []
+
     try:
-        _ = session.scalars(
-                select(Booking).order_by(asc(Booking.book_ref)).limit(1)
-            ).first()
+        for _ in range(SELECT_REPEATS):
+            results.append(select_iteration())
     except Exception as e:
         print(f'[ERROR] Test 6 failed: {e}')
         sys.exit(1)
 
-    elapsed = time.perf_counter_ns() - start
+    elapsed = statistics.median(results)
 
     print(
         f'SQLAlchemy (sync). Test 6. Find first\n'

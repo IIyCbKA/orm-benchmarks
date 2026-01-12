@@ -1,10 +1,10 @@
-import os
-
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from dotenv import load_dotenv
+import os
 
 load_dotenv()
+
 DB_USER = os.getenv("POSTGRES_USER")
 DB_PASS = os.getenv("POSTGRES_PASSWORD")
 DB_HOST = os.getenv("POSTGRES_HOST")
@@ -18,8 +18,9 @@ DEBUG = "debug" if os.getenv("DEBUG") == "True" else False
 
 engine = create_engine(DATABASE_URL, echo=DEBUG, future=True)
 
-SessionLocal = sessionmaker(bind=engine, autoflush=False, future=True)
-
-
-
-
+SessionLocal = sessionmaker(
+    bind=engine,
+    autoflush=False,
+    expire_on_commit=False,
+    future=True
+)

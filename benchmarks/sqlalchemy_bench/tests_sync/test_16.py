@@ -26,13 +26,14 @@ def main() -> None:
 
     try:
         statement = delete(Booking).where(Booking.book_ref.in_(refs))
-        result = session.execute(statement)
+        _ = session.execute(statement)
         session.commit()
     except Exception as e:
-        print(f'[ERROR] Test 16 failed: {e}')
+        print(f'[ERROR] Test 16 failed (delete phase): {e}')
         sys.exit(1)
 
-    elapsed = time.perf_counter_ns() - start
+    end = time.perf_counter_ns()
+    elapsed = end - start
 
     print(
         f'SQLAlchemy (sync). Test 16. Bulk delete. {COUNT} entries\n'

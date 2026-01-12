@@ -1,17 +1,18 @@
 from decimal import Decimal
 from datetime import datetime, UTC
-import os
 from sqlalchemy import select
+import os
 
 from core.models import Booking, Ticket
 from db import SessionLocal
 
 COUNT = int(os.environ.get("WARMUP_ITERATIONS", '20'))
 
+
 def warmup() -> None:
-    for i in range(COUNT):
-        try:
-            session = SessionLocal()
+    try:
+        session = SessionLocal()
+        for i in range(COUNT):
             with session.begin():
                 b = Booking(
                     book_ref=f'warm{i:02d}',
@@ -44,10 +45,11 @@ def warmup() -> None:
                 session.flush()
                 session.delete(b)
 
-        except Exception as e:
-            print(e)
+    except Exception as e:
+        print(e)
 
     print("Warmup done")
+
 
 if __name__ == "__main__":
     warmup()

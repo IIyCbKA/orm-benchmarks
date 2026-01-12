@@ -20,7 +20,6 @@ def main() -> None:
                 DELETE FROM bookings.bookings
                 WHERE book_ref = ANY(%s)
             """, (refs,))
-            conn.commit()
     except Exception as e:
         print(f'[ERROR] Test 16 failed: {e}')
         sys.exit(1)

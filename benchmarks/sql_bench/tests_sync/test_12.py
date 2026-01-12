@@ -48,7 +48,6 @@ def main() -> None:
                         book_date = %s
                     WHERE book_ref = %s
                 """, (get_new_amount(old_amount), get_curr_date(), ref))
-                conn.commit()
     except Exception as e:
         print(f'[ERROR] Test 12 failed (update phase): {e}')
         sys.exit(1)

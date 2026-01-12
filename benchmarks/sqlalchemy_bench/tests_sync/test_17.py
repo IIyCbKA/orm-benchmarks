@@ -4,7 +4,7 @@ import time
 from sqlalchemy import delete, select
 from sqlalchemy.orm import selectinload
 from tests_sync.db import SessionLocal
-from core.models import Booking, Ticket
+from core.models import Booking
 
 COUNT = int(os.environ.get('ITERATIONS', '2500'))
 
@@ -27,15 +27,14 @@ def main() -> None:
 
     start = time.perf_counter_ns()
 
-
     try:
         for booking in bookings:
-            for ticket in booking.tickets:
-                session.delete(ticket)
-            session.delete(booking)
-            session.commit()
+            with session.begin():
+                for ticket in booking.tickets:
+                    session.delete(ticket)
+                session.delete(booking)
     except Exception as e:
-        print(f'[ERROR] Test 17 failed: {e}')
+        print(f'[ERROR] Test 17 failed (delete phase): {e}')
         sys.exit(1)
 
     elapsed = time.perf_counter_ns() - start

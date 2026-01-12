@@ -11,10 +11,9 @@ def warm_up() -> None:
     try:
         with conn.cursor() as cur:
             for i in range(COUNT):
+                book_ref = f"warm{i:02d}"
+                ticket_no = f"warm{i:09d}"
                 with conn.transaction():
-                    book_ref = f"warm{i:02d}"
-                    ticket_no = f"warm{i:09d}"
-
                     cur.execute(
                         """
                         INSERT INTO bookings.bookings

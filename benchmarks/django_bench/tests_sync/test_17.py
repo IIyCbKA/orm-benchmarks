@@ -32,7 +32,8 @@ def main() -> None:
   try:
     for booking in bookings:
       with transaction.atomic():
-        booking.tickets.all().delete()
+        for ticket in booking.tickets.all():
+          ticket.delete()
         booking.delete()
   except Exception as e:
     print(f'[ERROR] Test 17 failed (delete phase): {e}')

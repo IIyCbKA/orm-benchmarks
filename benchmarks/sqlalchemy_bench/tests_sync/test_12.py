@@ -16,8 +16,8 @@ def generate_book_ref(i: int) -> str:
     return f'a{i:05d}'
 
 
-def get_new_amount(i: int) -> Decimal:
-    return Decimal(i + 100) / Decimal('10.00')
+def get_new_amount(value: Decimal) -> Decimal:
+    return value / Decimal('10.00')
 
 
 @lru_cache(1)
@@ -44,10 +44,11 @@ def main() -> None:
             session.commit()
 
     except Exception as e:
-        print(f'[ERROR] Test 12 failed: {e}')
+        print(f'[ERROR] Test 12 failed (update phase): {e}')
         sys.exit(1)
 
-    elapsed = time.perf_counter_ns() - start
+    end = time.perf_counter_ns()
+    elapsed = end - start
 
     print(
         f'SQLAlchemy (sync). Test 12. Single update. {COUNT} entries\n'

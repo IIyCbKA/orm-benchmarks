@@ -1,25 +1,40 @@
-import sys
-import time
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 from tests_sync.db import SessionLocal
 from core.models import Booking
+import os
+import statistics
+import sys
+import time
+
+SELECT_REPEATS = int(os.environ.get('SELECT_REPEATS', '75'))
 
 
 def generate_book_ref(i: int) -> str:
     return f'a{i:05d}'
 
 
-def main() -> None:
+def select_iteration() -> int:
     start = time.perf_counter_ns()
+
     session: Session = SessionLocal()
+    _ = session.get(Booking, generate_book_ref(1))
+
+    end = time.perf_counter_ns()
+    return end - start
+
+
+def main() -> None:
+    results: list[int] = []
+
     try:
-        _ = session.get(Booking, generate_book_ref(1))
+        for _ in range(SELECT_REPEATS):
+            results.append(select_iteration())
     except Exception as e:
         print(f'[ERROR] Test 8 failed: {e}')
         sys.exit(1)
 
-    elapsed = time.perf_counter_ns() - start
+    elapsed = statistics.median(results)
 
     print(
         f'SQLAlchemy (sync). Test 8. Find unique\n'

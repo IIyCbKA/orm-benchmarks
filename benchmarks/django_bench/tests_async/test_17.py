@@ -21,7 +21,8 @@ def generate_book_ref(i: int) -> str:
 def delete_nested_sync(bookings: list[Booking]) -> None:
   for booking in bookings:
     with transaction.atomic():
-      booking.tickets.all().delete()
+      for ticket in booking.tickets.all():
+        ticket.delete()
       booking.delete()
 
 

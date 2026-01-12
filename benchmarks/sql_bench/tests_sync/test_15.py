@@ -21,7 +21,6 @@ def main() -> None:
                     DELETE FROM bookings.bookings
                     WHERE book_ref IN (%s)
                 """, (ref,))
-                conn.commit()
     except Exception as e:
         print(f'[ERROR] Test 15 failed: {e}')
         sys.exit(1)
