@@ -1,6 +1,6 @@
 from decimal import Decimal
 from datetime import datetime, UTC
-from sqlalchemy import select, flush
+from sqlalchemy import select
 import os
 
 from core.models import Booking, Ticket
