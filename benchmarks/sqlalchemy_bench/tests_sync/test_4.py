@@ -45,7 +45,6 @@ def main() -> None:
                         book_date=get_curr_date(),
                         total_amount=generate_amount(i),
                     ))
-                    session.flush()
 
                     session.add(Ticket(
                         ticket_no=generate_ticket_no(i),
@@ -54,7 +53,6 @@ def main() -> None:
                         passenger_name="Test",
                         outbound=True,
                     ))
-                    session.flush()
     except Exception as e:
         print(f'[ERROR] Test 4 failed: {e}')
         sys.exit(1)

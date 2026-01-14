@@ -1,7 +1,7 @@
 from datetime import datetime, UTC
 from decimal import Decimal
 from functools import lru_cache
-from pony.orm import db_session, flush
+from pony.orm import db_session
 from core.models import Booking
 import os
 import sys
@@ -35,7 +35,6 @@ def main() -> None:
           book_date=get_curr_date(),
           total_amount=generate_amount(i),
         )
-        flush()
   except Exception as e:
     print(f'[ERROR] Test 2 failed: {e}')
     sys.exit(1)

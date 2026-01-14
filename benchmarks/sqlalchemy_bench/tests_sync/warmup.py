@@ -20,7 +20,7 @@ def warmup() -> None:
                         total_amount=Decimal('5.00')
                     )
                     session.add(b)
-                    session.flush()
+
                     t = Ticket(
                         ticket_no=f'warm{i:09d}',
                         book_ref=b.book_ref,
@@ -29,7 +29,6 @@ def warmup() -> None:
                         outbound=True
                     )
                     session.add(t)
-                    session.flush()
 
                     _ = session.scalar(
                         select(Booking).where(Booking.book_ref == f'warm{i:02d}')
@@ -42,7 +41,6 @@ def warmup() -> None:
                     t.passenger_name = 'WarmUpdate'
 
                     session.delete(t)
-                    session.flush()
                     session.delete(b)
     except Exception as e:
         print(e)

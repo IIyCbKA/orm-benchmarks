@@ -1,11 +1,11 @@
 from datetime import datetime, UTC
 from decimal import Decimal
 from functools import lru_cache
+import itertools
 import os
 import time
 import sys
 from tests_sync.db import conn
-from psycopg import sql
 
 COUNT = int(os.environ.get('ITERATIONS', '2500'))
 
@@ -32,15 +32,14 @@ def main() -> None:
             (generate_book_ref(i), get_curr_date(), generate_amount(i))
             for i in range(COUNT)
         ]
-        values_sql = sql.SQL(", ").join(
-            sql.SQL("(%s, %s, %s)") for _ in rows
+        values = ', '.join(['(%s,%s,%s)'] * len(rows))
+        query = (
+            "INSERT INTO bookings.bookings (book_ref, book_date, total_amount) "
+            f"VALUES {values}"
         )
-        query = sql.SQL("""
-            INSERT INTO bookings.bookings (book_ref, book_date, total_amount)
-            VALUES {}
-        """).format(values_sql)
+        params = list(itertools.chain.from_iterable(rows))
         with conn.cursor() as cur:
-            cur.execute(query, [v for row in rows for v in row])
+            cur.execute(query, params)
     except Exception as e:
         print(f'[ERROR] Test 3 failed: {e}')
         sys.exit(1)

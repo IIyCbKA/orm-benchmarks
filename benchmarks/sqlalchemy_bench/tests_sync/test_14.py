@@ -31,7 +31,6 @@ def main() -> None:
             with session.begin():
                 for booking in bookings:
                     session.delete(booking)
-                    session.flush()
         except Exception as e:
             print(f'[ERROR] Test 14 failed (delete phase): {e}')
             sys.exit(1)

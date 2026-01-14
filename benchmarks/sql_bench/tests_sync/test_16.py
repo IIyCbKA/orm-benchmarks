@@ -2,7 +2,6 @@ import os
 import time
 import sys
 from tests_sync.db import conn
-from psycopg import sql
 
 COUNT = int(os.environ.get('ITERATIONS', '2500'))
 
@@ -16,13 +15,11 @@ def main() -> None:
     start = time.perf_counter_ns()
 
     try:
-        placeholders = sql.SQL(",").join(sql.Placeholder() for _ in refs)
-        query = sql.SQL("""
-            DELETE FROM bookings.bookings 
-            WHERE book_ref IN ({})
-        """).format(placeholders)
         with conn.cursor() as cur:
-            cur.execute(query, refs)
+            cur.execute("""
+                DELETE FROM bookings.bookings 
+                WHERE book_ref = ANY(%s::char(6)[])
+            """, (refs,))
     except Exception as e:
         print(f'[ERROR] Test 16 failed: {e}')
         sys.exit(1)

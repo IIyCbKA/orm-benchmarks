@@ -1,4 +1,4 @@
-from pony.orm import db_session, select, flush, commit
+from pony.orm import db_session, select, commit
 from core.models import Booking
 import os
 import sys
@@ -25,7 +25,6 @@ def main() -> None:
   try:
     for booking in bookings:
       booking.delete()
-      flush()
     commit()
   except Exception as e:
     print(f'[ERROR] Test 14 failed (delete phase): {e}')

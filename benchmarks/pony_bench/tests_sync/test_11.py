@@ -1,7 +1,7 @@
 from datetime import datetime, UTC
 from decimal import Decimal
 from functools import lru_cache
-from pony.orm import db_session, select, flush, commit
+from pony.orm import db_session, select, commit
 from core.models import Booking
 import os
 import sys
@@ -38,7 +38,6 @@ def main() -> None:
     for booking in bookings:
       booking.total_amount = get_new_amount(booking.total_amount)
       booking.book_date = get_curr_date()
-      flush()
     commit()
   except Exception as e:
     print(f'[ERROR] Test 11 failed (update phase): {e}')

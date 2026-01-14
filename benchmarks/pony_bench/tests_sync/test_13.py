@@ -1,5 +1,5 @@
 from decimal import Decimal
-from pony.orm import db_session, select, flush, commit
+from pony.orm import db_session, select, commit
 from core.models import Booking
 import os
 import sys
@@ -29,10 +29,8 @@ def main() -> None:
   try:
     for booking in bookings:
       booking.total_amount += Decimal('10.00')
-      flush()
       for ticket in booking.tickets:
         ticket.passenger_name = 'Nested update'
-        flush()
       commit()
   except Exception as e:
     print(f'[ERROR] Test 13 failed (update phase): {e}')

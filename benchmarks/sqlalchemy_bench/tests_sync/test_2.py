@@ -36,7 +36,6 @@ def main() -> None:
                         book_date=get_curr_date(),
                         total_amount=generate_amount(i),
                     ))
-                    session.flush()
     except Exception as e:
         print(f'[ERROR] Test 2 failed: {e}')
         sys.exit(1)

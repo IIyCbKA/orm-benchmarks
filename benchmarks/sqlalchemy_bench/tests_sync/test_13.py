@@ -33,10 +33,8 @@ def main() -> None:
             for booking in bookings:
                 with session.begin():
                     booking.total_amount += Decimal('10.00')
-                    session.flush()
                     for ticket in booking.tickets:
                         ticket.passenger_name = 'Nested update'
-                        session.flush()
         except Exception as e:
             print(f'[ERROR] Test 13 failed (delete phase): {e}')
             sys.exit(1)

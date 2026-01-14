@@ -38,7 +38,8 @@ def main() -> None:
             print(f'[ERROR] Test 17 failed (delete phase): {e}')
             sys.exit(1)
 
-        elapsed = time.perf_counter_ns() - start
+        end = time.perf_counter_ns()
+        elapsed = end - start
 
         print(
             f'SQLAlchemy (sync). Test 17. Nested delete. {COUNT} entries\n'

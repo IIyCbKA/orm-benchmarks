@@ -1,7 +1,7 @@
 from datetime import datetime, UTC
 from decimal import Decimal
 from functools import lru_cache
-from pony.orm import db_session, commit, flush
+from pony.orm import db_session, commit
 from core.models import Booking, Ticket
 import os
 import sys
@@ -43,7 +43,6 @@ def main() -> None:
           book_date=get_curr_date(),
           total_amount=generate_amount(i)
         )
-        flush()
 
         _ = Ticket(
           ticket_no=generate_ticket_no(i),
