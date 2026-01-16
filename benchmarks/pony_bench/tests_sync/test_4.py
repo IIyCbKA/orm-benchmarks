@@ -4,18 +4,20 @@ from functools import lru_cache
 from pony.orm import db_session, commit
 from core.models import Booking, Ticket
 import os
+import statistics
 import sys
 import time
 
-COUNT = int(os.environ.get('ITERATIONS', '2500'))
+ITERATION_COUNT = int(os.environ.get('ITERATIONS', '2500'))
+NESTED_COUNT = int(os.environ.get('NESTED_COUNT', '5'))
 
 
 def generate_book_ref(i: int) -> str:
   return f'd{i:05d}'
 
 
-def generate_ticket_no(i: int) -> str:
-  return f'98{i:11d}'
+def generate_ticket_no(i: int, j: int) -> str:
+  return f'98{j:04d}{i:07d}'
 
 
 def generate_passenger_id(i: int) -> str:
@@ -32,35 +34,43 @@ def get_curr_date():
   return datetime.now(UTC)
 
 
-def main() -> None:
+def create_iteration(i: int) -> int:
   start = time.perf_counter_ns()
 
-  try:
-    with db_session:
-      for i in range(COUNT):
-        booking = Booking(
-          book_ref=generate_book_ref(i),
-          book_date=get_curr_date(),
-          total_amount=generate_amount(i)
-        )
+  with db_session:
+    booking = Booking(
+      book_ref=generate_book_ref(i),
+      book_date=get_curr_date(),
+      total_amount=generate_amount(i)
+    )
 
-        _ = Ticket(
-          ticket_no=generate_ticket_no(i),
-          book_ref=booking,
-          passenger_id=generate_passenger_id(i),
-          passenger_name='Test',
-          outbound=True
-        )
-        commit()
+    for j in range(NESTED_COUNT):
+      _ = Ticket(
+        ticket_no=generate_ticket_no(i, j),
+        book_ref=booking,
+        passenger_id=generate_passenger_id(i),
+        passenger_name='Test',
+        outbound=True
+      )
+
+  end = time.perf_counter_ns()
+  return end - start
+
+
+def main() -> None:
+  results: list[int] = []
+
+  try:
+    for i in range(ITERATION_COUNT):
+      results.append(create_iteration(i))
   except Exception as e:
     print(f'[ERROR] Test 4 failed: {e}')
     sys.exit(1)
 
-  end = time.perf_counter_ns()
-  elapsed = end - start
+  elapsed = statistics.median(results)
 
   print(
-    f'PonyORM. Test 4. Nested create. {COUNT} entities\n'
+    f'PonyORM. Test 4. Nested create\n'
     f'elapsed_ns={elapsed}'
   )
 

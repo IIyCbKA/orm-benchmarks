@@ -33,6 +33,7 @@ services:
       POSTGRES_PORT: ${POSTGRES_PORT}
       WARMUP_ITERATIONS: ${WARMUP_ITERATIONS}
       SELECT_REPEATS: ${SELECT_REPEATS}
+      NESTED_COUNT: ${NESTED_COUNT}
     command: ${RUNNER_COMMAND:-sync}
     networks:
       - root

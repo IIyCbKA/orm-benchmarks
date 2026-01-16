@@ -4,6 +4,7 @@ from functools import lru_cache
 from pony.orm import db_session, commit
 from core.models import Booking
 import os
+import statistics
 import sys
 import time
 
@@ -24,27 +25,34 @@ def get_curr_date():
   return datetime.now(UTC)
 
 
-def main() -> None:
+def create_iteration(i: int) -> int:
   start = time.perf_counter_ns()
 
+  with db_session:
+    Booking(
+      book_ref=generate_book_ref(i),
+      book_date=get_curr_date(),
+      total_amount=generate_amount(i),
+    )
+
+  end = time.perf_counter_ns()
+  return end - start
+
+
+def main() -> None:
+  results: list[int] = []
+
   try:
-    with db_session:
-      for i in range(COUNT):
-        Booking(
-          book_ref=generate_book_ref(i),
-          book_date=get_curr_date(),
-          total_amount=generate_amount(i),
-        )
-        commit()
+    for i in range(COUNT):
+      results.append(create_iteration(i))
   except Exception as e:
     print(f'[ERROR] Test 1 failed: {e}')
     sys.exit(1)
 
-  end = time.perf_counter_ns()
-  elapsed = end - start
+  elapsed = statistics.median(results)
 
   print(
-    f'PonyORM. Test 1. Single create. {COUNT} entities\n'
+    f'PonyORM. Test 1. Single create\n'
     f'elapsed_ns={elapsed}'
   )
 

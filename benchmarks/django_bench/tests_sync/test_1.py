@@ -1,6 +1,7 @@
 from decimal import Decimal
 from functools import lru_cache
 import os
+import statistics
 import sys
 import time
 
@@ -27,25 +28,33 @@ def get_curr_date():
   return timezone.now()
 
 
-def main() -> None:
+def create_iteration(i: int) -> int:
   start = time.perf_counter_ns()
+
+  Booking.objects.create(
+    book_ref=generate_book_ref(i),
+    book_date=get_curr_date(),
+    total_amount=generate_amount(i),
+  )
+
+  end = time.perf_counter_ns()
+  return end - start
+
+
+def main() -> None:
+  results: list[int] = []
 
   try:
     for i in range(COUNT):
-      Booking.objects.create(
-        book_ref=generate_book_ref(i),
-        book_date=get_curr_date(),
-        total_amount=generate_amount(i),
-      )
+      results.append(create_iteration(i))
   except Exception as e:
     print(f'[ERROR] Test 1 failed: {e}')
     sys.exit(1)
 
-  end = time.perf_counter_ns()
-  elapsed = end - start
+  elapsed = statistics.median(results)
 
   print(
-    f'Django ORM (sync). Test 1. Single create. {COUNT} entities\n'
+    f'Django ORM (sync). Test 1. Single create\n'
     f'elapsed_ns={elapsed}'
   )
 

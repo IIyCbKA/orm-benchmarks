@@ -2,8 +2,9 @@ from datetime import datetime, UTC
 from decimal import Decimal
 from functools import lru_cache
 import os
-import time
+import statistics
 import sys
+import time
 from tests_sync.db import conn
 
 COUNT = int(os.environ.get('ITERATIONS', '2500'))
@@ -23,25 +24,33 @@ def get_curr_date():
     return datetime.now(UTC)
 
 
-def main() -> None:
+def create_iteration(i: int) -> int:
     start = time.perf_counter_ns()
 
+    with conn.cursor() as cur:
+        cur.execute("""
+            INSERT INTO bookings.bookings (book_ref, book_date, total_amount)
+            VALUES (%s, %s, %s)
+        """, (generate_book_ref(i), get_curr_date(), generate_amount(i)))
+
+    end = time.perf_counter_ns()
+    return end - start
+
+
+def main() -> None:
+    results: list[int] = []
+
     try:
-        with conn.cursor() as cur:
-            for i in range(COUNT):
-                cur.execute("""
-                    INSERT INTO bookings.bookings (book_ref, book_date, total_amount)
-                    VALUES (%s, %s, %s)
-                """, (generate_book_ref(i), get_curr_date(), generate_amount(i)))
+        for i in range(COUNT):
+            results.append(create_iteration(i))
     except Exception as e:
         print(f'[ERROR] Test 1 failed: {e}')
         sys.exit(1)
 
-    end = time.perf_counter_ns()
-    elapsed = end - start
+    elapsed = statistics.median(results)
 
     print(
-        f'Pure SQL (psycopg3). Test 1. Single create. {COUNT} entities\n'
+        f'Pure SQL (psycopg3). Test 1. Single create\n'
         f'elapsed_ns={elapsed}'
     )
 
