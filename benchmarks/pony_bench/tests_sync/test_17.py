@@ -1,6 +1,7 @@
 from pony.orm import db_session, select, commit
-from core.models import Booking
+from core.models import Booking, Ticket
 import os
+import statistics
 import sys
 import time
 
@@ -15,31 +16,31 @@ def generate_book_ref(i: int) -> str:
 def main() -> None:
   try:
     refs = [generate_book_ref(i) for i in range(COUNT)]
-    bookings = list(
-      select(b for b in Booking if b.book_ref in refs)
-      .prefetch(Booking.tickets)
-    )
+    bookings = list(select(b for b in Booking if b.book_ref in refs))
   except Exception as e:
     print(f'[ERROR] Test 17 failed (data preparation): {e}')
     sys.exit(1)
 
-  start = time.perf_counter_ns()
+  results: list[int] = []
 
   try:
     for booking in bookings:
-      for ticket in booking.tickets:
-        ticket.delete()
+      start = time.perf_counter_ns()
+
+      Ticket.select(lambda t: t.book_ref == booking.book_ref).delete(bulk=True)
       booking.delete()
       commit()
+
+      end = time.perf_counter_ns()
+      results.append(end - start)
   except Exception as e:
     print(f'[ERROR] Test 17 failed (delete phase): {e}')
     sys.exit(1)
 
-  end = time.perf_counter_ns()
-  elapsed = end - start
+  elapsed = statistics.median(results)
 
   print(
-    f'PonyORM. Test 17. Nested delete. {COUNT} entries\n'
+    f'PonyORM. Test 17. Nested delete\n'
     f'elapsed_ns={elapsed}'
   )
 

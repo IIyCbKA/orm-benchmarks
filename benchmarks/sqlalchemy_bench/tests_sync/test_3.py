@@ -24,6 +24,7 @@ def generate_amount(i: int) -> Decimal:
 def get_curr_date():
     return datetime.now(UTC)
 
+
 def main() -> None:
     start = time.perf_counter_ns()
 

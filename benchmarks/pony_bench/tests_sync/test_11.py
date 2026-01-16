@@ -14,10 +14,6 @@ def generate_book_ref(i: int) -> str:
   return f'a{i:05d}'
 
 
-def get_new_amount(value: Decimal) -> Decimal:
-  return value / Decimal('10.00')
-
-
 @lru_cache(1)
 def get_curr_date():
   return datetime.now(UTC)
@@ -36,7 +32,7 @@ def main() -> None:
 
   try:
     for booking in bookings:
-      booking.total_amount = get_new_amount(booking.total_amount)
+      booking.total_amount /= Decimal('10.00')
       booking.book_date = get_curr_date()
     commit()
   except Exception as e:

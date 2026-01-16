@@ -1,6 +1,7 @@
 import os
-import time
+import statistics
 import sys
+import time
 from tests_sync.db import conn
 
 COUNT = int(os.environ.get('ITERATIONS', '2500'))
@@ -12,24 +13,29 @@ def generate_book_ref(i: int) -> str:
 
 def main() -> None:
     refs = [generate_book_ref(i) for i in range(COUNT)]
-    start = time.perf_counter_ns()
+
+    results: list[int] = []
 
     try:
-        with conn.cursor() as cur:
-            for ref in refs:
+        for ref in refs:
+            start = time.perf_counter_ns()
+
+            with conn.cursor() as cur:
                 cur.execute("""
                     DELETE FROM bookings.bookings
                     WHERE book_ref IN (%s)
                 """, (ref,))
+
+            end = time.perf_counter_ns()
+            results.append(end - start)
     except Exception as e:
         print(f'[ERROR] Test 15 failed: {e}')
         sys.exit(1)
 
-    end = time.perf_counter_ns()
-    elapsed = end - start
+    elapsed = statistics.median(results)
 
     print(
-        f'Pure SQL (psycopg3). Test 15. Single delete. {COUNT} entries\n'
+        f'Pure SQL (psycopg3). Test 15. Single delete\n'
         f'elapsed_ns={elapsed}'
     )
 

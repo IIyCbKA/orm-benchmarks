@@ -1,7 +1,8 @@
 from decimal import Decimal
 import os
-import time
+import statistics
 import sys
+import time
 from tests_sync.db import conn
 
 COUNT = int(os.environ.get('ITERATIONS', '2500'))
@@ -23,22 +24,18 @@ def main() -> None:
                     WHERE book_ref = %s
                 """, (ref,)).fetchone()[0]
 
-                tickets = [ticket[0] for ticket in cur.execute("""
-                    SELECT ticket_no
-                    FROM bookings.tickets
-                    WHERE book_ref = %s
-                """, (ref,)).fetchall()]
-
-                current_data.append((ref, total_amount, tickets))
+                current_data.append((ref, total_amount))
     except Exception as e:
         print(f'[ERROR] Test 13 failed (data preparation): {e}')
         sys.exit(1)
 
-    start = time.perf_counter_ns()
+    results: list[int] = []
 
     try:
         with conn.cursor() as cur:
-            for ref, old_amount, tickets in current_data:
+            for ref, old_amount in current_data:
+                start = time.perf_counter_ns()
+
                 with conn.transaction():
                     cur.execute("""
                         UPDATE bookings.bookings
@@ -46,21 +43,22 @@ def main() -> None:
                         WHERE book_ref = %s
                     """, (old_amount + Decimal('10.00'), ref))
 
-                    for ticket_no in tickets:
-                        cur.execute("""
-                            UPDATE bookings.tickets
-                            SET passenger_name = %s
-                            WHERE ticket_no = %s
-                        """, ('Nested update', ticket_no))
+                    cur.execute("""
+                        UPDATE bookings.tickets 
+                        SET passenger_name = %s 
+                        WHERE book_ref = %s
+                    """, ('Nested update', ref))
+
+                end = time.perf_counter_ns()
+                results.append(end - start)
     except Exception as e:
         print(f'[ERROR] Test 13 failed (update phase): {e}')
         sys.exit(1)
 
-    end = time.perf_counter_ns()
-    elapsed = end - start
+    elapsed = statistics.median(results)
 
     print(
-        f'Pure SQL (psycopg3). Test 13. Nested update. {COUNT} entries\n'
+        f'Pure SQL (psycopg3). Test 13. Nested update\n'
         f'elapsed_ns={elapsed}'
     )
 

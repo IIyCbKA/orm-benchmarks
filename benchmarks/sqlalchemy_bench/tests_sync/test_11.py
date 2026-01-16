@@ -1,23 +1,19 @@
-import sys
 from datetime import datetime, UTC
 from decimal import Decimal
 from functools import lru_cache
-import os
-import time
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 from tests_sync.db import SessionLocal
 from core.models import Booking
+import os
+import sys
+import time
 
 COUNT = int(os.environ.get('ITERATIONS', '2500'))
 
 
 def generate_book_ref(i: int) -> str:
     return f'a{i:05d}'
-
-
-def get_new_amount(value: Decimal) -> Decimal:
-    return value / Decimal('10.00')
 
 
 @lru_cache(1)
@@ -41,7 +37,7 @@ def main() -> None:
         try:
             with session.begin():
                 for booking in bookings:
-                    booking.total_amount = get_new_amount(booking.total_amount)
+                    booking.total_amount /= Decimal('10.00')
                     booking.book_date = get_curr_date()
         except Exception as e:
             print(f'[ERROR] Test 11 failed (update phase): {e}')

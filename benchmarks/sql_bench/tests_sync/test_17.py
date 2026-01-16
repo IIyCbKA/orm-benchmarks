@@ -1,6 +1,7 @@
 import os
-import time
+import statistics
 import sys
+import time
 from tests_sync.db import conn
 
 COUNT = int(os.environ.get('ITERATIONS', '2500'))
@@ -13,43 +14,38 @@ def generate_book_ref(i: int) -> str:
 def main() -> None:
     try:
         refs = [generate_book_ref(i) for i in range(COUNT)]
-        current_data = []
-        with conn.cursor() as cur:
-            for ref in refs:
-                tickets = [ticket[0] for ticket in cur.execute("""
-                    SELECT ticket_no
-                    FROM bookings.tickets
-                    WHERE book_ref = %s
-                """, (ref,)).fetchall()]
-
-                current_data.append((ref, tickets))
     except Exception as e:
         print(f'[ERROR] Test 17 failed (data preparation): {e}')
         sys.exit(1)
 
-    start = time.perf_counter_ns()
+    results: list[int] = []
 
     try:
-        with conn.cursor() as cur:
-            for ref, tickets in current_data:
+        for ref in refs:
+            start = time.perf_counter_ns()
+
+            with conn.cursor() as cur:
                 with conn.transaction():
-                    for ticket_no in tickets:
-                        cur.execute("""
-                            DELETE FROM bookings.tickets WHERE ticket_no = %s
-                        """, (ticket_no,))
+                    cur.execute("""
+                        DELETE FROM bookings.tickets 
+                        WHERE book_ref = %s
+                    """, (ref,))
 
                     cur.execute("""
-                        DELETE FROM bookings.bookings WHERE book_ref = %s
+                        DELETE FROM bookings.bookings 
+                        WHERE book_ref = %s
                     """, (ref,))
+
+            end = time.perf_counter_ns()
+            results.append(end - start)
     except Exception as e:
         print(f'[ERROR] Test 17 failed (delete phase): {e}')
         sys.exit(1)
 
-    end = time.perf_counter_ns()
-    elapsed = end - start
+    elapsed = statistics.median(results)
 
     print(
-        f'Pure SQL (psycopg3). Test 17. Nested delete. {COUNT} entries\n'
+        f'Pure SQL (psycopg3). Test 17. Nested delete\n'
         f'elapsed_ns={elapsed}'
     )
 

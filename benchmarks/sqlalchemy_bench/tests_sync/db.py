@@ -16,7 +16,12 @@ DATABASE_URL = f"postgresql+psycopg://{DB_USER}:{DB_PASS}@{DB_HOST}:{DB_PORT}/{D
 
 DEBUG = "debug" if os.getenv("DEBUG") == "True" else False
 
-engine = create_engine(DATABASE_URL, echo=DEBUG, future=True)
+engine = create_engine(
+    DATABASE_URL,
+    isolation_level='AUTOCOMMIT',
+    echo=DEBUG,
+    future=True
+)
 
 SessionLocal = sessionmaker(
     bind=engine,

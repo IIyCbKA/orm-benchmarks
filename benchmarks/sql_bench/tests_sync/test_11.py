@@ -13,10 +13,6 @@ def generate_book_ref(i: int) -> str:
     return f'a{i:05d}'
 
 
-def get_new_amount(value: Decimal) -> Decimal:
-    return value / Decimal('10.00')
-
-
 @lru_cache(1)
 def get_curr_date():
     return datetime.now(UTC)
@@ -49,7 +45,7 @@ def main() -> None:
                         SET total_amount = %s,
                             book_date = %s
                         WHERE book_ref = %s
-                    """, (get_new_amount(old_amount), get_curr_date(), ref))
+                    """, (old_amount / Decimal('10.00'), get_curr_date(), ref))
     except Exception as e:
         print(f'[ERROR] Test 11 failed (update phase): {e}')
         sys.exit(1)

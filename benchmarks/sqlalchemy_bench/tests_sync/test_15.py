@@ -1,10 +1,10 @@
-import os
-import sys
-import time
 from sqlalchemy import select
-
 from tests_sync.db import SessionLocal
 from core.models import Booking
+import os
+import statistics
+import sys
+import time
 
 COUNT = int(os.environ.get('ITERATIONS', '2500'))
 
@@ -24,21 +24,25 @@ def main() -> None:
             print(f'[ERROR] Test 15 failed (data preparation): {e}')
             sys.exit(1)
 
-        start = time.perf_counter_ns()
+        results: list[int] = []
 
         try:
             for booking in bookings:
+                start = time.perf_counter_ns()
+
                 session.delete(booking)
                 session.commit()
+
+                end = time.perf_counter_ns()
+                results.append(end - start)
         except Exception as e:
             print(f'[ERROR] Test 15 failed (delete phase): {e}')
             sys.exit(1)
 
-        end = time.perf_counter_ns()
-        elapsed = end - start
+        elapsed = statistics.median(results)
 
         print(
-            f'SQLAlchemy (sync). Test 15. Single delete. {COUNT} entries\n'
+            f'SQLAlchemy (sync). Test 15. Single delete\n'
             f'elapsed_ns={elapsed}'
         )
 

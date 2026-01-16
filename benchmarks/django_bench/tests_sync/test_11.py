@@ -18,10 +18,6 @@ def generate_book_ref(i: int) -> str:
   return f'a{i:05d}'
 
 
-def get_new_amount(value: Decimal) -> Decimal:
-  return value / Decimal('10.00')
-
-
 @lru_cache(1)
 def get_curr_date():
   return timezone.now()
@@ -40,7 +36,7 @@ def main() -> None:
   try:
     with transaction.atomic():
       for booking in bookings:
-        booking.total_amount = get_new_amount(booking.total_amount)
+        booking.total_amount /= Decimal('10.00')
         booking.book_date = get_curr_date()
         booking.save(update_fields=['total_amount', 'book_date'])
   except Exception as e:

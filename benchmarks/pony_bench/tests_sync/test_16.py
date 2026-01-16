@@ -13,7 +13,7 @@ def generate_book_ref(i: int) -> str:
 @db_session
 def main() -> None:
   """
-  Pony ORM does not support true bulk delete.
+  Pony ORM does not support true bulk delete as of 16.01.2026.
   Therefore, Test 16 "Bulk delete" is skipped for Pony,
   and we mark it with a dash in benchmarks.
 

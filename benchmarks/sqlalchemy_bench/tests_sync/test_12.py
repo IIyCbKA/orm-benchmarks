@@ -1,23 +1,19 @@
-import sys
 from datetime import datetime, UTC
 from decimal import Decimal
 from functools import lru_cache
-import os
-import time
 from sqlalchemy import select
-
 from tests_sync.db import SessionLocal
 from core.models import Booking
+import os
+import statistics
+import sys
+import time
 
 COUNT = int(os.environ.get('ITERATIONS', '2500'))
 
 
 def generate_book_ref(i: int) -> str:
     return f'a{i:05d}'
-
-
-def get_new_amount(value: Decimal) -> Decimal:
-    return value / Decimal('10.00')
 
 
 @lru_cache(1)
@@ -36,23 +32,26 @@ def main() -> None:
             print(f'[ERROR] Test 12 failed (data preparation): {e}')
             sys.exit(1)
 
-        start = time.perf_counter_ns()
+        results: list[int] = []
 
         try:
             for booking in bookings:
-                booking.total_amount = get_new_amount(booking.total_amount)
+                start = time.perf_counter_ns()
+
+                booking.total_amount /= Decimal('10.00')
                 booking.book_date = get_curr_date()
                 session.commit()
 
+                end = time.perf_counter_ns()
+                results.append(end - start)
         except Exception as e:
             print(f'[ERROR] Test 12 failed (update phase): {e}')
             sys.exit(1)
 
-        end = time.perf_counter_ns()
-        elapsed = end - start
+        elapsed = statistics.median(results)
 
         print(
-            f'SQLAlchemy (sync). Test 12. Single update. {COUNT} entries\n'
+            f'SQLAlchemy (sync). Test 12. Single update\n'
             f'elapsed_ns={elapsed}'
         )
 

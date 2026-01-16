@@ -19,8 +19,8 @@ def generate_ticket_no(i: int, j: int) -> str:
     return f'98{j:04d}{i:07d}'
 
 
-def generate_passenger_id(i: int) -> str:
-    return f'p{i:08d}'
+def generate_passenger_id(i: int, j: int) -> str:
+    return f'p{j:04d}{i:04d}'
 
 
 def generate_amount(i: int) -> Decimal:
@@ -52,7 +52,7 @@ def create_iteration(i: int) -> int:
                 """, (
                     generate_ticket_no(i, j),
                     book_ref,
-                    generate_passenger_id(i),
+                    generate_passenger_id(i, j),
                     'Test',
                     True,
                 ))

@@ -1,6 +1,7 @@
 from pony.orm import db_session, commit, select
 from core.models import Booking
 import os
+import statistics
 import sys
 import time
 
@@ -20,21 +21,25 @@ def main() -> None:
     print(f'[ERROR] Test 15 failed (data preparation): {e}')
     sys.exit(1)
 
-  start = time.perf_counter_ns()
+  results: list[int] = []
 
   try:
     for booking in bookings:
+      start = time.perf_counter_ns()
+
       booking.delete()
       commit()
+
+      end = time.perf_counter_ns()
+      results.append(end - start)
   except Exception as e:
     print(f'[ERROR] Test 15 failed (delete phase): {e}')
     sys.exit(1)
 
-  end = time.perf_counter_ns()
-  elapsed = end - start
+  elapsed = statistics.median(results)
 
   print(
-    f'PonyORM. Test 15. Single delete. {COUNT} entries\n'
+    f'PonyORM. Test 15. Single delete\n'
     f'elapsed_ns={elapsed}'
   )
 

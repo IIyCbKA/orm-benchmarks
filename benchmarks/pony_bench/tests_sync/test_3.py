@@ -25,7 +25,7 @@ def get_curr_date():
 
 def main() -> None:
   """
-  Pony ORM does not support true bulk insert.
+  Pony ORM does not support true bulk insert as of 16.01.2026.
   Therefore, Test 3 "Bulk create" is skipped for Pony,
   and we mark it with a dash in benchmarks.
 

@@ -24,8 +24,8 @@ def main() -> None:
 
     try:
         with SessionLocal() as session:
-            statement = delete(Booking).where(Booking.book_ref.in_(refs))
-            _ = session.execute(statement)
+            stmt = delete(Booking).where(Booking.book_ref.in_(refs))
+            session.execute(stmt)
             session.commit()
     except Exception as e:
         print(f'[ERROR] Test 16 failed (delete phase): {e}')

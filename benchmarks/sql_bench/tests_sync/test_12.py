@@ -2,18 +2,15 @@ from datetime import datetime, UTC
 from decimal import Decimal
 from functools import lru_cache
 import os
-import time
+import statistics
 import sys
+import time
 from tests_sync.db import conn
 
 COUNT = int(os.environ.get('ITERATIONS', '2500'))
 
 def generate_book_ref(i: int) -> str:
     return f'a{i:05d}'
-
-
-def get_new_amount(value: Decimal) -> Decimal:
-    return value / Decimal('10.00')
 
 
 @lru_cache(1)
@@ -37,26 +34,30 @@ def main() -> None:
         print(f'[ERROR] Test 12 failed (data preparation): {e}')
         sys.exit(1)
 
-    start = time.perf_counter_ns()
+    results: list[int] = []
 
     try:
         with conn.cursor() as cur:
             for ref, old_amount in current_values:
+                start = time.perf_counter_ns()
+
                 cur.execute("""
                     UPDATE bookings.bookings
                     SET total_amount = %s,
                         book_date = %s
                     WHERE book_ref = %s
-                """, (get_new_amount(old_amount), get_curr_date(), ref))
+                """, (old_amount / Decimal('10.00'), get_curr_date(), ref))
+
+                end = time.perf_counter_ns()
+                results.append(end - start)
     except Exception as e:
         print(f'[ERROR] Test 12 failed (update phase): {e}')
         sys.exit(1)
 
-    end = time.perf_counter_ns()
-    elapsed = end - start
+    elapsed = statistics.median(results)
 
     print(
-        f'Pure SQL (psycopg3). Test 12. Single update. {COUNT} entries\n'
+        f'Pure SQL (psycopg3). Test 12. Single update\n'
         f'elapsed_ns={elapsed}'
     )
 
