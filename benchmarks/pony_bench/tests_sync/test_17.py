@@ -1,5 +1,5 @@
 from pony.orm import db_session, select, commit
-from core.models import Booking, Ticket
+from core.models import Booking
 import os
 import statistics
 import sys
@@ -14,9 +14,20 @@ def generate_book_ref(i: int) -> str:
 
 @db_session
 def main() -> None:
+  """
+  Pony heavily relies on the cache, so deleting nested objects is possible
+  either with 1 + 1 queries to the DB (bypassing the cache) or with N + 1
+  queries that perform a full iteration over the objects.
+
+  This implementation uses the N + 1 approach, since working with an
+  initialized parent object is considered mandatory.
+  """
   try:
     refs = [generate_book_ref(i) for i in range(COUNT)]
-    bookings = list(select(b for b in Booking if b.book_ref in refs))
+    bookings = list(
+      select(b for b in Booking if b.book_ref in refs)
+      .prefetch(Booking.tickets)
+    )
   except Exception as e:
     print(f'[ERROR] Test 17 failed (data preparation): {e}')
     sys.exit(1)
@@ -27,7 +38,8 @@ def main() -> None:
     for booking in bookings:
       start = time.perf_counter_ns()
 
-      Ticket.select(lambda t: t.book_ref == booking).delete(bulk=True)
+      for ticket in booking.tickets:
+        ticket.delete()
       booking.delete()
       commit()
 
