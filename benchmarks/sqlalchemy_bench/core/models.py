@@ -17,7 +17,8 @@ class Booking(Base):
 
     tickets: Mapped[list["Ticket"]] = relationship(
         back_populates="booking",
-        cascade="all, delete-orphan",
+        cascade="save-update, merge",
+        passive_deletes=True,
     )
 
     __table_args__ = (

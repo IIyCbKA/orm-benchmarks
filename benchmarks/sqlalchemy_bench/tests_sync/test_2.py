@@ -16,7 +16,8 @@ def generate_book_ref(i: int) -> str:
 
 
 def generate_amount(i: int) -> Decimal:
-    return Decimal(i + 500) / Decimal('10.00')
+    value = i + 500
+    return Decimal(value) / Decimal('10.00')
 
 
 @lru_cache(1)
