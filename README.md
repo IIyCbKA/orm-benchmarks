@@ -67,7 +67,7 @@ name from this list for `./start.sh`):
 List of modes for solutions (use the mode name from this list for `./start.sh`, 
 with selected solution. Default is sync):
 - sync: django | pony | sqlalchemy | sql
-- async: django | sqlalchemy | sql
+- async (coming soon): django | sqlalchemy | sql
 
 **IMPORTANT NOTE:** On each fresh run of `docker-compose` (this is done 
 in `stop.sh`) you must clear all runtime volumes from previous runs.

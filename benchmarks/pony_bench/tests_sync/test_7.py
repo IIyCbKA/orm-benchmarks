@@ -18,13 +18,13 @@ def select_iteration() -> int:
   with db_session:
     _ = list(select((
         t.ticket_no,
-        t.book_ref,
+        t.book_ref.book_ref,
         t.passenger_id,
         t.passenger_name,
         t.outbound,
-        t.booking.book_ref,
-        t.booking.book_date,
-        t.booking.total_amount
+        t.book_ref.book_ref,
+        t.book_ref.book_date,
+        t.book_ref.total_amount
     ) for t in Ticket).order_by(1)[:LIMIT])
 
   end = time.perf_counter_ns()
