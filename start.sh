@@ -29,16 +29,16 @@ fi
 
 declare -A MAP=(
   ["django"]="./benchmarks/django_bench"
+  ["peewee"]="./benchmarks/peewee_bench"
   ["pony"]="./benchmarks/pony_bench"
   ["sqlalchemy"]="./benchmarks/sqlalchemy_bench"
-  ["sql"]="./benchmarks/sql_bench"
 )
 
 declare -A MODES_MAP=(
   ["django"]="sync async"
+  ["peewee"]="sync"
   ["pony"]="sync"
   ["sqlalchemy"]="sync async"
-  ["sql"]="sync async"
 )
 
 NAME="${1:-}"
