@@ -26,10 +26,10 @@ def get_curr_date():
 
 
 def main() -> None:
-  with SessionLocal() as session:
-    start = time.perf_counter_ns()
+  try:
+    with SessionLocal() as session:
+      start = time.perf_counter_ns()
 
-    try:
       with session.begin():
         for i in range(COUNT):
           session.add(Booking(
@@ -37,17 +37,18 @@ def main() -> None:
             book_date=get_curr_date(),
             total_amount=generate_amount(i),
           ))
-    except Exception as e:
-      print(f'[ERROR] Test 2 failed: {e}')
-      sys.exit(1)
 
-    end = time.perf_counter_ns()
-    elapsed = end - start
+      end = time.perf_counter_ns()
+  except Exception as e:
+    print(f'[ERROR] Test 2 failed: {e}')
+    sys.exit(1)
 
-    print(
-      f'SQLAlchemy (sync). Test 2. Transaction create. {COUNT} entities\n'
-      f'elapsed_ns={elapsed}'
-    )
+  elapsed = end - start
+
+  print(
+    f'SQLAlchemy (sync). Test 2. Transaction create. {COUNT} entities\n'
+    f'elapsed_ns={elapsed}'
+  )
 
 
 if __name__ == '__main__':

@@ -26,31 +26,32 @@ def get_curr_date():
 
 
 def main() -> None:
-  with SessionLocal() as session:
-    start = time.perf_counter_ns()
+  try:
+    with SessionLocal() as session:
+      start = time.perf_counter_ns()
 
-    try:
       objs = [
         Booking(
           book_ref=generate_book_ref(i),
           book_date=get_curr_date(),
           total_amount=generate_amount(i),
-        )
-        for i in range(COUNT)
+        ) for i in range(COUNT)
       ]
 
       session.bulk_save_objects(objs)
-    except Exception as e:
-      print(f'[ERROR] Test 3 failed: {e}')
-      sys.exit(1)
+      session.commit()
 
-    end = time.perf_counter_ns()
-    elapsed = end - start
+      end = time.perf_counter_ns()
+  except Exception as e:
+    print(f'[ERROR] Test 3 failed: {e}')
+    sys.exit(1)
 
-    print(
-      f'SQLAlchemy (sync). Test 3. Bulk create. {COUNT} entities\n'
-      f'elapsed_ns={elapsed}'
-    )
+  elapsed = end - start
+
+  print(
+    f'SQLAlchemy (sync). Test 3. Bulk create. {COUNT} entities\n'
+    f'elapsed_ns={elapsed}'
+  )
 
 
 if __name__ == '__main__':

@@ -27,10 +27,10 @@ def main() -> None:
     print(f'[ERROR] Test 11 failed (data preparation): {e}')
     sys.exit(1)
 
-  with SessionLocal() as session:
-    start = time.perf_counter_ns()
+  try:
+    with SessionLocal() as session:
+      start = time.perf_counter_ns()
 
-    try:
       stmt = (
         update(Booking)
         .where(Booking.book_ref.in_(refs))
@@ -41,17 +41,18 @@ def main() -> None:
       )
       session.execute(stmt)
       session.commit()
-    except Exception as e:
-      print(f'[ERROR] Test 11 failed (update phase): {e}')
-      sys.exit(1)
 
-    end = time.perf_counter_ns()
-    elapsed = end - start
+      end = time.perf_counter_ns()
+  except Exception as e:
+    print(f'[ERROR] Test 11 failed (update phase): {e}')
+    sys.exit(1)
 
-    print(
-      f'SQLAlchemy (sync). Test 11. Bulk update. {COUNT} entries\n'
-      f'elapsed_ns={elapsed}'
-    )
+  elapsed = end - start
+
+  print(
+    f'SQLAlchemy (sync). Test 11. Bulk update. {COUNT} entries\n'
+    f'elapsed_ns={elapsed}'
+  )
 
 
 if __name__ == '__main__':

@@ -32,7 +32,8 @@ def select_iteration() -> int:
     _ = session.execute(stmt).all()
 
     end = time.perf_counter_ns()
-    return end - start
+
+  return end - start
 
 
 def main() -> None:

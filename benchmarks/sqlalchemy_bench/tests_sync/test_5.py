@@ -13,12 +13,11 @@ def select_iteration() -> int:
   with SessionLocal() as session:
     start = time.perf_counter_ns()
 
-    _ = session.scalars(
-      select(Booking).order_by(asc(Booking.book_ref)).limit(1)
-    ).first()
+    _ = session.scalar(select(Booking).order_by(asc(Booking.book_ref)).limit(1))
 
     end = time.perf_counter_ns()
-    return end - start
+
+  return end - start
 
 
 def main() -> None:

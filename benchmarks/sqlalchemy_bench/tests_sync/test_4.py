@@ -16,7 +16,8 @@ def select_iteration() -> int:
     _ = session.scalars(select(Booking)).all()
 
     end = time.perf_counter_ns()
-    return end - start
+
+  return end - start
 
 
 def main() -> None:

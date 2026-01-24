@@ -1,6 +1,7 @@
 from datetime import datetime, UTC
 from decimal import Decimal
 from functools import lru_cache
+from sqlalchemy import select
 from tests_sync.db import SessionLocal
 from core.models import Booking
 import os
@@ -22,7 +23,9 @@ def get_curr_date():
 
 def update_iteration(i: int) -> int:
   with SessionLocal() as session:
-    booking = session.get(Booking, generate_book_ref(i))
+    booking = session.scalar(
+      select(Booking).where(Booking.book_ref == generate_book_ref(i))
+    )
 
     start = time.perf_counter_ns()
 
@@ -31,7 +34,8 @@ def update_iteration(i: int) -> int:
     session.commit()
 
     end = time.perf_counter_ns()
-    return end - start
+
+  return end - start
 
 
 def main() -> None:

@@ -1,3 +1,4 @@
+from sqlalchemy import select
 from tests_sync.db import SessionLocal
 from core.models import Booking
 import os
@@ -16,10 +17,13 @@ def select_iteration() -> int:
   with SessionLocal() as session:
     start = time.perf_counter_ns()
 
-    _ = session.get(Booking, generate_book_ref(1))
+    _ = session.scalar(
+      select(Booking).where(Booking.book_ref == generate_book_ref(1))
+    )
 
     end = time.perf_counter_ns()
-    return end - start
+
+  return end - start
 
 
 def main() -> None:

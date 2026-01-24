@@ -39,7 +39,8 @@ def create_iteration(i: int) -> int:
     session.commit()
 
     end = time.perf_counter_ns()
-    return end - start
+
+  return end - start
 
 
 def main() -> None:

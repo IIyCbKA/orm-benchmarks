@@ -15,7 +15,9 @@ def generate_book_ref(i: int) -> str:
 
 def delete_iteration(i: int) -> int:
   with SessionLocal() as session:
-    booking = session.get(Booking, generate_book_ref(i))
+    booking = session.scalar(
+      select(Booking).where(Booking.book_ref == generate_book_ref(i))
+    )
 
     start = time.perf_counter_ns()
 
