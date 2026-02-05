@@ -11,6 +11,9 @@ django.setup()
 from core.models import Booking
 from django.utils import timezone
 
+from django.db import connection
+connection.ensure_connection()
+
 COUNT = int(os.environ.get('ITERATIONS', '2500'))
 
 
@@ -37,16 +40,18 @@ async def create_booking(i: int) -> None:
 
 
 async def main() -> None:
-  start = time.perf_counter_ns()
-
   try:
-    tasks = [create_booking(i) for i in range(COUNT)]
-    await asyncio.gather(*tasks)
+    coroutines = [create_booking(i) for i in range(COUNT)]
+
+    start = time.perf_counter_ns()
+
+    await asyncio.gather(*coroutines)
+
+    end = time.perf_counter_ns()
   except Exception as e:
     print(f'[ERROR] Test 1 failed: {e}')
     sys.exit(1)
 
-  end = time.perf_counter_ns()
   elapsed = end - start
 
   print(

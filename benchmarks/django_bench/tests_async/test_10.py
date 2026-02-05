@@ -1,5 +1,5 @@
-from datetime import timedelta
 from decimal import Decimal
+from functools import lru_cache
 import asyncio
 import os
 import sys
@@ -8,35 +8,61 @@ import time
 import django
 django.setup()
 
+from asgiref.sync import sync_to_async
 from core.models import Booking
 from django.utils import timezone
+from django.db import transaction
 
-LIMIT = int(os.environ.get('LIMIT', '250'))
-OFFSET = int(os.environ.get('OFFSET', '500'))
+from django.db import connection
+connection.ensure_connection()
+
+COUNT = int(os.environ.get('ITERATIONS', '2500'))
+BATCH_SIZE = int(os.environ.get('BATCH_SIZE', '50'))
+BATCH_COUNT = COUNT // BATCH_SIZE
+
+
+def generate_book_ref(i: int) -> str:
+  return f'a{i:05d}'
+
+
+@lru_cache(1)
+def get_curr_date():
+  return timezone.now()
+
+
+@sync_to_async
+def update_booking_sync(bookings: list[Booking]) -> None:
+  with transaction.atomic():
+    for booking in bookings:
+      booking.total_amount /= Decimal('10.00')
+      booking.book_date = get_curr_date()
+      booking.save(update_fields=['total_amount', 'book_date'])
 
 
 async def main() -> None:
-  now = timezone.now()
-  date_from = now - timedelta(days=30)
-  amount_low = Decimal('50.00')
-  amount_high = Decimal('500.00')
-  start = time.perf_counter_ns()
-
   try:
-    _ = [r async for r in Booking.objects.filter(
-      total_amount__gte=amount_low,
-      total_amount__lte=amount_high,
-      book_date__gte=date_from
-    ).order_by('total_amount')[OFFSET:OFFSET + LIMIT]]
+    refs = [generate_book_ref(i) for i in range(COUNT)]
+    bookings = [b async for b in Booking.objects.filter(book_ref__in=refs)]
+
+    coroutines = [
+      update_booking_sync(bookings[i * BATCH_SIZE:(i + 1) * BATCH_SIZE])
+      for i in range(BATCH_COUNT)
+    ]
+
+    start = time.perf_counter_ns()
+
+    await asyncio.gather(*coroutines)
+
+    end = time.perf_counter_ns()
   except Exception as e:
-    print(f'[ERROR] Test 10 failed: {e}')
+    print(f'[ERROR] Test 11 failed: {e}')
     sys.exit(1)
 
-  end = time.perf_counter_ns()
   elapsed = end - start
 
   print(
-    f'Django ORM (async). Test 10. Filter, paginate & sort\n'
+    f'Django ORM (async). Test 11. Transaction update. '
+    f'{BATCH_COUNT} transaction, {BATCH_SIZE} updates per transaction\n'
     f'elapsed_ns={elapsed}'
   )
 
